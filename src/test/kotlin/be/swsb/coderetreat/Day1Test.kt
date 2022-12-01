@@ -12,13 +12,10 @@ class Day1Test {
         val lines = readFile("day1/exampleInput.txt");
         val result = lines
                 .fold(mutableListOf(mutableListOf<String>())) { acc, value ->
-                    if (value.isBlank()) acc.add(mutableListOf()) else acc.last().add(value)
+                    if (value.isBlank()) acc += mutableListOf<String>() else acc.last() += value
                     acc
                 }
-                .map { elf -> elf
-                        .map{value -> value.toInt()}
-                        .reduce { a, b -> a + b } }
-                .maxOrNull() ?: 0
+                .maxOfOrNull { elf -> elf.sumOf(String::toInt) } ?: 0
         assertThat(result).isEqualTo(24000)
     }
 
@@ -27,15 +24,13 @@ class Day1Test {
         val lines = readFile("day1/exampleInput.txt");
         val result = lines
                 .fold(mutableListOf(mutableListOf<String>())) { acc, value ->
-                    if (value.isBlank()) acc.add(mutableListOf()) else acc.last().add(value)
+                    if (value.isBlank()) acc += mutableListOf<String>() else acc.last() += value
                     acc
                 }
-                .map { elf -> elf
-                        .map{value -> value.toInt()}
-                        .reduce { a, b -> a + b } }
+                .map { elf -> elf.sumOf { value -> value.toInt() } }
                 .sortedDescending()
-                .subList(0, 3)
-                .reduce{a, b -> a + b}
+                .take(3)
+                .sum()
         assertThat(result).isEqualTo(45000)
     }
 
