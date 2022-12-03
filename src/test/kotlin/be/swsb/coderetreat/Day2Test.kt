@@ -1,5 +1,6 @@
 package be.swsb.coderetreat
 
+import be.swsb.coderetreat.Day2Test.Shape.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import readFile
@@ -7,96 +8,59 @@ import readFile
 
 class Day2Test {
 
-    val rockScore = Score(Shape.SCISSORS, Shape.ROCK, Shape.PAPER)
-    val paperScore = Score(Shape.ROCK, Shape.PAPER, Shape.SCISSORS)
-    val scissorsScore = Score(Shape.PAPER, Shape.SCISSORS, Shape.ROCK)
+    private val scores = mapOf(
+            ROCK to Score(SCISSORS, ROCK, PAPER),
+            PAPER to Score(ROCK, PAPER, SCISSORS),
+            SCISSORS to Score(PAPER, SCISSORS, ROCK)
+    )
 
     @Test
     fun `part 1`() {
-        val lines = readFile("day2/exampleInput.txt");
+        val lines = readFile("day2/exampleInput.txt")
         val result = lines
-                .map { line -> Pair(line.split(" ")[0], line.split(" ")[1]) }
-                .map { game -> Pair(mapABC(game.first), mapXYZ(game.second)) }
-                .sumOf { game -> wonScore(game) + shapeScore(game.second) };
-        assertEquals(15, result);
+                .map { it.split(" ") }
+                .map { (a, b) -> mapABC(a) to mapXYZ(b) }
+                .sumOf { (a, b) -> wonScore(a, b) + shapeScore(b) }
+        assertEquals(15, result)
     }
 
     @Test
     fun `part 2`() {
-        val lines = readFile("day2/input.txt");
+        val lines = readFile("day2/exampleInput.txt")
         val result = lines
-                .map { line -> Pair(line.split(" ")[0], line.split(" ")[1]) }
-                .map { game -> Pair(mapABC(game.first), chooseShapePart2(game.second, mapABC(game.first))) }
-                .sumOf { game -> wonScore(game) + shapeScore(game.second) };
-        assertEquals(12, result);
+                .map { it.split(" ") }
+                .map { (a, b) -> mapABC(a) to chooseShapePart2(b, mapABC(a)) }
+                .sumOf { (a, b) -> wonScore(a, b) + shapeScore(b) }
+        assertEquals(12, result)
     }
 
-    fun wonScore(game: Pair<Shape, Shape>): Int {
-        return when (game.second) {
-            Shape.ROCK -> rockScore.score(game.first)
-            Shape.PAPER -> paperScore.score(game.first)
-            else -> scissorsScore.score(game.first)
-        }
+    private fun wonScore(opponent: Shape, me: Shape): Int {
+        return scores[me]!!.score(opponent)
     }
 
-    fun shapeScore(chosenShape: Shape): Int {
-        return when (chosenShape) {
-            Shape.ROCK -> 1
-            Shape.PAPER -> 2
-            else -> 3
-        }
-    }
+    private fun shapeScore(chosenShape: Shape) = mapOf(ROCK to 1, PAPER to 2, SCISSORS to 3)[chosenShape]!!
 
-    class Score(val winFrom: Shape, val drawFrom: Shape, val loseFrom: Shape) {
-        fun score(other: Shape): Int {
-            if (this.winFrom == other) return 6
-            if (this.loseFrom == other) return 0
-            return 3
-        }
-    }
+    private fun mapXYZ(value: String) = mapOf("X" to ROCK, "Y" to PAPER, "Z" to SCISSORS)[value]!!
 
-    fun mapXYZ(value: String): Shape {
-        return when (value) {
-            "X" -> Shape.ROCK
-            "Y" -> Shape.PAPER
-            else -> Shape.SCISSORS
-        }
-    }
+    private fun mapABC(value: String) = mapOf("A" to ROCK, "B" to PAPER, "C" to SCISSORS)[value]!!
 
-    fun chooseShapePart2(what: String, value: Shape): Shape {
-        if (what == "X") { // lose
-            return when (value) {
-                Shape.ROCK -> rockScore.winFrom
-                Shape.PAPER -> paperScore.winFrom
-                else -> scissorsScore.winFrom
-            }
-        }
-        else if (what == "Y") { // draw
-            return when (value) {
-                Shape.ROCK -> rockScore.drawFrom
-                Shape.PAPER -> paperScore.drawFrom
-                else -> scissorsScore.drawFrom
-            }
-        }
-
-        else {// win
-            return when (value) {
-                Shape.ROCK -> rockScore.loseFrom
-                Shape.PAPER -> paperScore.loseFrom
-                else -> scissorsScore.loseFrom
-            }
-        }
-    }
-
-    fun mapABC(value: String): Shape {
-        return when (value) {
-            "A" -> Shape.ROCK
-            "B" -> Shape.PAPER
-            else -> Shape.SCISSORS
+    private fun chooseShapePart2(what: String, value: Shape): Shape {
+        return when (what) {
+            "X" -> scores[value]!!.winsFrom // lose
+            "Y" -> scores[value]!!.drawsFrom // draw
+            else -> scores[value]!!.losesFrom // from
         }
     }
 
     enum class Shape {
         ROCK, PAPER, SCISSORS
+    }
+
+    class Score(val winsFrom: Shape, val drawsFrom: Shape, val losesFrom: Shape) {
+        fun score(other: Shape): Int {
+            if (this.winsFrom == other) return 6
+            if (this.losesFrom == other) return 0
+            return 3
+        }
     }
 }
