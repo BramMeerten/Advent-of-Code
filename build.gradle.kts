@@ -1,9 +1,17 @@
 plugins {
-    id("kotlin-conventions")
+    kotlin("jvm") version "1.7.10"
+    application
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
-    testImplementation("org.assertj:assertj-core:3.14.0")
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation("org.assertj:assertj-core:3.23.1")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

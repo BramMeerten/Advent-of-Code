@@ -1,9 +1,8 @@
-package be.swsb.coderetreat
+package be.brammeerten
 
-import be.swsb.coderetreat.Day2Test.Shape.*
+import be.brammeerten.Day2Test.Shape.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import readFile
 
 
 class Day2Test {

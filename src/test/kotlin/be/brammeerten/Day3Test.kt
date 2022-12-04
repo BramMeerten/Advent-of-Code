@@ -1,8 +1,7 @@
-package be.swsb.coderetreat
+package be.brammeerten
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import readFile
 
 
 class Day3Test {
