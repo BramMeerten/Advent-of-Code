@@ -30,7 +30,7 @@ class Day6Test {
     }
 
     private fun solve(file: String, uniqueLength: Int): Int {
-        val line = readFile(file)[0]
+        val line = readSingleLine(file)
         val unique = line
             .windowed(uniqueLength)
             .first { sub -> sub.toCharArray().toList().toSet().size == uniqueLength }
