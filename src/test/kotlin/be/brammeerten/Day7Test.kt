@@ -8,42 +8,34 @@ class Day7Test {
 
     @Test
     fun `part 1`() {
-        val root = readDirectory()
-
-        Assertions.assertEquals(95437, root.getLimitedSize(100000))
+        val root1 = readDirectory("day7/exampleInput.txt")
+        Assertions.assertEquals(95437, root1.getLimitedSize(100000))
     }
 
     @Test
     fun `part 2`() {
-        val root = readDirectory()
+        val root = readDirectory("day7/exampleInput.txt")
         val extraSpaceNeeded = 30000000 - (70000000 - root.totalSize())
-
         Assertions.assertEquals(24933642, root.findSmallestDirectoryWithMinimumSpace(extraSpaceNeeded))
     }
 
-    private fun readDirectory(): Dir {
-        var dir: Dir? = null
-        var root: Dir? = null
-
-        val lines = readFile("day7/exampleInput.txt")
+    private fun readDirectory(file: String): Dir {
+        val root = Dir("/")
         val regex = Regex("^(\\d+) (.+)$")
+        val lines = readFile(file)
 
-        for (line in lines) {
+        var dir = root
+        for (line in lines.drop(1)) {
             if (line.startsWith("$ cd ..")) {
-                dir = dir!!.parent
+                dir = dir.parent!!
             } else if (line.startsWith("$ cd ")) {
-                if (dir == null) {
-                    dir = Dir(line.substring("$ cd ".length))
-                    root = dir
-                } else {
-                    dir = dir.addDir(line.substring("$ cd ".length))
-                }
-            } else if (!line.startsWith("$ ls")) {
+                dir = dir.addDir(line.drop("$ cd ".length))
+            } else if (regex.matches(line)) {
                 val result = regex.find(line)
-                if (result != null) dir!!.addFile(result.groupValues[2], result.groupValues[1].toInt())
+                dir.addFile(result!!.groupValues[2], result.groupValues[1].toInt())
             }
         }
-        return root!!
+        return root
     }
 
     class Dir(
@@ -62,18 +54,13 @@ class Day7Test {
         }
 
         fun totalSize(): Int {
-            return files.values.sum() + subDirs.map { it.value.totalSize() }.sum()
+            return files.values.sum() + subDirs.values.sumOf { it.totalSize() }
         }
 
         fun getLimitedSize(limit: Int): Int {
             val total = totalSize()
-            var value = if (total < limit) total else 0
-
-            for (subDir in subDirs.values) {
-                value += subDir.getLimitedSize(limit)
-            }
-
-            return value
+            val value = if (total < limit) total else 0
+            return value + subDirs.values.sumOf { it.getLimitedSize(limit) }
         }
 
         fun findSmallestDirectoryWithMinimumSpace(minSpace: Int, maxSpace: Int = Int.MAX_VALUE): Int? {
