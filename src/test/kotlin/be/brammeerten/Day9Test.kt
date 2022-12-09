@@ -3,6 +3,7 @@ package be.brammeerten
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.math.abs
+import kotlin.math.sign
 
 class Day9Test {
 
@@ -44,16 +45,13 @@ class Day9Test {
                 }
             }.forEach { move ->
                 map.move(move)
-                if (print) {
-                    map.print()
-                    println("\n")
-                }
+                if (print) map.print()
             }
         return map.visited.size
     }
 
     class RopeMap(length: Int) {
-        var snake: MutableList<Co>
+        private var snake: MutableList<Co>
         val visited: HashSet<Co> = HashSet()
 
         private var topLeft: Co = Co(-2, -2)
@@ -65,53 +63,44 @@ class Day9Test {
         }
 
         fun move(co: Co) {
-            snake[0] = snake[0].add(co)
-            for (i in 1 until snake.size) {
+            snake[0] = snake[0] + co
+            for (i in 1 until snake.size)
                 snake[i] = follow(snake[i-1], snake[i])
-            }
+
             visited.add(snake[snake.size-1])
             topLeft = topLeft.min(snake[0])
             bottomRight = bottomRight.max(snake[0])
         }
 
-        fun follow(head: Co, tail: Co): Co {
-            val colDiff = abs(head.col - tail.col)
-            val rowDiff = abs(head.row-tail.row)
-            if (colDiff <= 1 && rowDiff <= 1)
-                return tail
+        private fun follow(head: Co, tail: Co): Co {
+            val colDiff = head.col - tail.col
+            val rowDiff = head.row - tail.row
 
-            if (head.row == tail.row)
-                return Co(tail.row, tail.col + signI(head.col-tail.col))
-            else if (head.col == tail.col)
-                return Co(tail.row + signI(head.row-tail.row), tail.col)
+            return if (abs(colDiff) <= 1 && abs(rowDiff) <= 1)
+                tail
             else
-                return Co(tail.row + signI(head.row-tail.row), tail.col + signI(head.col-tail.col))
+                Co(tail.row + rowDiff.sign, tail.col + colDiff.sign)
         }
 
         fun print() {
             for (row in topLeft.row..bottomRight.row) {
                 for (col in topLeft.col..bottomRight.col) {
-                    var f = true
-                    if (snake[0] == Co(row, col)) print("H ")
-                    else if (snake[snake.size-1] == Co(row, col)) print("T ")
+                    if (snake[0] == Co(row, col))
+                        print("H ")
+                    else if (snake[snake.size-1] == Co(row, col))
+                        print("T ")
                     else {
-                        f = false
-                        for ((index, _) in snake.withIndex()) {
-                            if (snake[index] == Co(row, col)) {
-                                print("" + (index + 1) + " ")
-                                f = true
-                                break
-                            }
-                        }
-                    }
-                    if (!f && visited.contains(Co(row, col))) {
-                        print("# ")
-                    } else if (!f) {
-                        print(". ")
+                        val i = snake.indexOf(Co(row, col))
+                        if (i != -1)
+                            print("" + (i + 1) + " ")
+                        else if (visited.contains(Co(row, col)))
+                            print("# ")
+                        else print(". ")
                     }
                 }
                 println()
             }
+            println("\n")
         }
     }
 }

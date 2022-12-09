@@ -12,10 +12,6 @@ fun readSingleLine(file: String): String {
         return lines[0]
 }
 
-fun signI(value: Int): Int {
-        return if (value == 0) 0 else if (value < 0) -1 else 1
-}
-
 fun extractRegexGroups(regex: String, text: String): List<String> {
         val matches = Regex(regex).find(text)
         return matches!!.groupValues.drop(1)
@@ -24,7 +20,8 @@ fun extractRegexGroups(regex: String, text: String): List<String> {
 fun String.toCharList() = this.toCharArray().toList()
 
 data class Co(val row: Int, val col: Int) {
-        fun add(co: Co): Co {
+
+        operator fun plus(co: Co): Co {
                 return Co(row + co.row, col + co.col)
         }
 
