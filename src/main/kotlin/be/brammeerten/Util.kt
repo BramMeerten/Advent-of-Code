@@ -12,6 +12,10 @@ fun readSingleLine(file: String): String {
         return lines[0]
 }
 
+fun readFileSplitted(file: String, delimitter: String) =
+        readAllText(file).split(delimitter)
+                .map { it.split("\n") }
+
 fun readAllText(file: String) =
         {}::class.java.classLoader.getResourceAsStream(file)
                 ?.reader()
@@ -19,7 +23,7 @@ fun readAllText(file: String) =
 
 fun extractRegexGroups(regex: String, text: String): List<String> {
         val matches = Regex(regex).find(text)
-        return matches!!.groupValues.drop(1)
+        return matches?.groupValues?.drop(1) ?: throw IllegalStateException("Line does not match regex: $text")
 }
 
 fun extractRegexGroupsI(regex: String, text: String) =
