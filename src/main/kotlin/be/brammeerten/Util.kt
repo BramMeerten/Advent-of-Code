@@ -12,10 +12,18 @@ fun readSingleLine(file: String): String {
         return lines[0]
 }
 
+fun readAllText(file: String) =
+        {}::class.java.classLoader.getResourceAsStream(file)
+                ?.reader()
+                ?.readText()!!
+
 fun extractRegexGroups(regex: String, text: String): List<String> {
         val matches = Regex(regex).find(text)
         return matches!!.groupValues.drop(1)
 }
+
+fun extractRegexGroupsI(regex: String, text: String) =
+        extractRegexGroups(regex, text).map { it.toInt() }
 
 fun String.toCharList() = this.toCharArray().toList()
 
