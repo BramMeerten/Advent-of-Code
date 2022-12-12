@@ -45,3 +45,12 @@ data class Co(val row: Int, val col: Int) {
                 return cos.fold(this) {acc, co -> Co(Math.max(acc.row, co.row), Math.max(acc.col, co.col))}
         }
 }
+
+fun Char.toAlphabetIndex(): Int {
+        if (this in 'a'..'z')
+                return this.toByte().toInt() - 'a'.toByte().toInt()
+        else if (this in 'A' .. 'Z')
+                return this.toByte().toInt() - 'A'.toByte().toInt()
+        else
+                throw IllegalStateException("Not an alphabetic character: '$this'")
+}
