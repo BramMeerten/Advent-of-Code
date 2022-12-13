@@ -8,16 +8,41 @@ class Day13Test {
 
     @Test
     fun `part 1a`() {
-        val pairs = readPairs("day13/input.txt")
-
-        isCorrect(pairs[1].first, pairs[1].second)
-
+        val pairs = readPairs("day13/exampleInput.txt")
         Assertions.assertEquals(13, solve(pairs))
     }
 
     @Test
-    fun `test util parseList`() {
-        val actual = parseList("[1,[24,[3,[4,[5,6,7]]]],8,9]")
+    fun `part 1b`() {
+        val packets = readFile("day13/input.txt")
+            .filter { it.isNotEmpty() }
+            .map { parseList(it) }
+            .toMutableList()
+        packets.add(parseList("[[2]]"))
+        packets.add(parseList("[[6]]"))
+
+        val sorted = sortPackets(packets)
+
+        val result = sorted.mapIndexed{i, v ->
+            if (v.isList && v.list.size == 1 && v.list[0].isList && v.list[0].list.size == 1 && v.list[0].list[0].isNumber && v.list[0].list[0].getVal() == 6)
+                i+1
+            else if (v.isList && v.list.size == 1 && v.list[0].isList && v.list[0].list.size == 1 && v.list[0].list[0].isNumber && v.list[0].list[0].getVal() == 2)
+                i+1
+            else
+                0
+        }.filter { it != 0 }
+        Assertions.assertEquals(140, result[0] * result[1])
+    }
+
+    private fun sortPackets(packets: MutableList<ValueOrList>): List<ValueOrList> {
+        return packets.sortedWith(object : Comparator<ValueOrList> {
+            override fun compare(o1: ValueOrList?, o2: ValueOrList?): Int {
+                val r = isCorrect(o1!!, o2!!)
+                if (r == true) return -1
+                else if (r == false) return 1
+                else return 0
+            }
+        })
     }
 
     fun readPairs(file: String): List<Pair<ValueOrList, ValueOrList>> {
@@ -48,10 +73,12 @@ class Day13Test {
                 if (res == true) return true
             }
             return null
+
         } else if (left.isList) {
             val rightList = ValueOrList(true, right.parent)
             rightList.addItem(right.getVal())
             return isCorrect(left, rightList)
+
         } else {
             val leftList = ValueOrList(true, left.parent)
             leftList.addItem(left.getVal())
@@ -65,7 +92,7 @@ class Day13Test {
 
         while (toParse.length > 1) {
             // read next token
-            var token: String = ""
+            var token = ""
             if (toParse[0] == '[') token = "["
             else if (toParse[0] == ']') token = "]"
             else if (toParse[0] == ',') token = ","
@@ -110,10 +137,5 @@ class ValueOrList(val isList: Boolean, val parent: ValueOrList? = null, val valu
     fun getVal(): Int {
         if (isList) throw IllegalStateException("is a list")
         return value!!
-    }
-
-    fun allNums(): Boolean {
-        if (!isList) throw IllegalStateException("Not a list")
-        return list.find { !it.isNumber } == null
     }
 }
