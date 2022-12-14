@@ -71,11 +71,9 @@ fun scanCave(file: String): List<List<Pair<Int, Int>>> {
 }
 
 class Cave(scans: List<List<Pair<Int, Int>>>, val infiniteFloor: Boolean = false) {
-    val w: Int
-    val h: Int
     val source: Co = Co(0, 500)
     val map: HashMap<Co, Tile> = HashMap()
-    val start: Co
+    val bottomFloor: Int
 
     init {
         var topLeft = source
@@ -99,9 +97,7 @@ class Cave(scans: List<List<Pair<Int, Int>>>, val infiniteFloor: Boolean = false
             map[co] = ROCK
         }
 
-        w = bottomRight.col - topLeft.col + 1
-        h = bottomRight.row - topLeft.row + 1 + (if (infiniteFloor) 2 else 0)
-        start = topLeft
+        bottomFloor = bottomRight.row - topLeft.row + (if (infiniteFloor) 2 else 0)
     }
 
     operator fun set(co: Co, value: Tile) {
@@ -109,17 +105,12 @@ class Cave(scans: List<List<Pair<Int, Int>>>, val infiniteFloor: Boolean = false
     }
 
     operator fun get(co: Co): Tile {
-        if (infiniteFloor && co.row == h-1) return ROCK
+        if (infiniteFloor && co.row == bottomFloor) return ROCK
         return map[co] ?: AIR
     }
 
     fun isInBounds(co: Co): Boolean {
-        if (infiniteFloor) {
-            return (co.row - start.row) in 0 until h
-        } else {
-            val c = co - start
-            return c.col >= 0 && c.row >= 0 && c.col < w && c.row < h
-        }
+        return co.row <= bottomFloor
     }
 
     fun sandCount(): Int {
@@ -127,9 +118,9 @@ class Cave(scans: List<List<Pair<Int, Int>>>, val infiniteFloor: Boolean = false
     }
 
     fun print() {
-        for (row in 0 until h) {
-            for (col in 0-10 until h+10) {
-                print(when(get(Co(row, col) + start)) {
+        for (row in 0 .. bottomFloor) {
+            for (col in source.col-15 until source.col+15) {
+                print(when(get(Co(row, col))) {
                     ROCK -> "#"
                     AIR -> "."
                     SAND -> "O"
