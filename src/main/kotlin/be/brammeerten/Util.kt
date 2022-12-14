@@ -37,12 +37,23 @@ data class Co(val row: Int, val col: Int) {
                 return Co(row + co.row, col + co.col)
         }
 
+        operator fun minus(co: Co): Co {
+                return Co(row - co.row, col - co.col)
+        }
+
         fun min(vararg cos: Co): Co {
                 return cos.fold(this) {acc, co -> Co(Math.min(acc.row, co.row), Math.min(acc.col, co.col))}
         }
 
         fun max(vararg cos: Co): Co {
                 return cos.fold(this) {acc, co -> Co(Math.max(acc.row, co.row), Math.max(acc.col, co.col))}
+        }
+
+        companion object {
+                @JvmField val UP = Co(-1, 0)
+                @JvmField val DOWN = Co(1, 0)
+                @JvmField val RIGHT = Co(0, 1)
+                @JvmField val LEFT = Co(0, -1)
         }
 }
 

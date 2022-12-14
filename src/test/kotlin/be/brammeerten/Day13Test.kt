@@ -92,7 +92,7 @@ class Day13Test {
 
         while (toParse.length > 1) {
             // read next token
-            var token = ""
+            var token: String
             if (toParse[0] == '[') token = "["
             else if (toParse[0] == ']') token = "]"
             else if (toParse[0] == ',') token = ","
