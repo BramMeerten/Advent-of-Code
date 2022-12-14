@@ -21,33 +21,45 @@ class Day14Test {
         simulate(map)
         Assertions.assertEquals(592, map.sandCount())
     }
+
+    @Test
+    fun `part 2a`() {
+        val map = Cave(scanCave("day14/exampleInput.txt"), infiniteFloor = true)
+        simulate(map, print = true)
+        Assertions.assertEquals(93, map.sandCount())
+    }
+
+    @Test
+    fun `part 2b`() {
+        val map = Cave(scanCave("day14/input.txt"), infiniteFloor = true)
+        simulate(map)
+        Assertions.assertEquals(30367, map.sandCount())
+    }
 }
 
 val DOWN_LEFT = Co.DOWN + Co.LEFT
 val DOWN_RIGHT = Co.DOWN + Co.RIGHT
 
 fun simulate(cave: Cave, print: Boolean = false) {
-    var direction = Co.DOWN
     var sand = cave.source
 
-    // while
     while (cave.isInBounds(sand)) {
-        sand += direction
         val tryDirections = listOf(Co.DOWN, DOWN_LEFT, DOWN_RIGHT)
-        var newSand: Co? = null
+        var direction: Co? = null
         for (dir in tryDirections) {
             if (!cave.isInBounds(sand + dir) || cave[sand + dir] == AIR) {
                 direction = dir
-                newSand = sand + dir
                 break
             }
         }
 
-        if (newSand == null) {
+        if (direction == null) {
             cave[sand] = SAND
-            sand = cave.source
-            direction = Co.DOWN
             if (print) cave.print()
+            if (sand == cave.source) break
+            else sand = cave.source
+        } else {
+           sand += direction
         }
     }
 }
@@ -58,11 +70,11 @@ fun scanCave(file: String): List<List<Pair<Int, Int>>> {
         .map { cos -> cos.map { it.split(",")[0].toInt() to it.split(",")[1].toInt() } }
 }
 
-class Cave(scans: List<List<Pair<Int, Int>>>) {
+class Cave(scans: List<List<Pair<Int, Int>>>, val infiniteFloor: Boolean = false) {
     val w: Int
     val h: Int
     val source: Co = Co(0, 500)
-    val map: Array<Tile>
+    val map: HashMap<Co, Tile> = HashMap()
     val start: Co
 
     init {
@@ -84,43 +96,40 @@ class Cave(scans: List<List<Pair<Int, Int>>>) {
         rocks.forEach { co ->
             topLeft = topLeft.min(co)
             bottomRight = bottomRight.max(co)
+            map[co] = ROCK
         }
 
-        start = topLeft
         w = bottomRight.col - topLeft.col + 1
-        h = bottomRight.row - topLeft.row + 1
-        map = Array(w*h) { AIR }
-        rocks.forEach { rock -> set(rock, ROCK) }
+        h = bottomRight.row - topLeft.row + 1 + (if (infiniteFloor) 2 else 0)
+        start = topLeft
     }
 
     operator fun set(co: Co, value: Tile) {
-        val c = co - start
-        val i = c.row * w + c.col
-        map[i] = value
+        map.put(co, value)
     }
 
     operator fun get(co: Co): Tile {
-        val c = co - start
-        return get(c.row, c.col)
-    }
-
-    fun get(row: Int, col: Int): Tile {
-        return map[row * w + col]
+        if (infiniteFloor && co.row == h-1) return ROCK
+        return map[co] ?: AIR
     }
 
     fun isInBounds(co: Co): Boolean {
-        val c = co - start
-        return c.col >= 0 && c.row >= 0 && c.col < w && c.row < h
+        if (infiniteFloor) {
+            return (co.row - start.row) in 0 until h
+        } else {
+            val c = co - start
+            return c.col >= 0 && c.row >= 0 && c.col < w && c.row < h
+        }
     }
 
     fun sandCount(): Int {
-        return map.toList().count { it == SAND }
+        return map.filter { (_, value) -> value == SAND }.count()
     }
 
     fun print() {
         for (row in 0 until h) {
-            for (col in 0 until h) {
-                print(when(get(row, col)) {
+            for (col in 0-10 until h+10) {
+                print(when(get(Co(row, col) + start)) {
                     ROCK -> "#"
                     AIR -> "."
                     SAND -> "O"
