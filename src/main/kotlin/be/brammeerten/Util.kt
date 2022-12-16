@@ -57,6 +57,25 @@ data class Co(val row: Int, val col: Int) {
         }
 }
 
+data class C(val x: Int, val y: Int) {
+
+        operator fun plus(co: C): C {
+                return C(x + co.x, y + co.y)
+        }
+
+        operator fun minus(co: C): C {
+                return C(x - co.x, y - co.y)
+        }
+
+        fun min(vararg cos: C): C {
+                return cos.fold(this) {acc, co -> C(Math.min(acc.x, co.x), Math.min(acc.y, co.y))}
+        }
+
+        fun max(vararg cos: C): C {
+                return cos.fold(this) {acc, co -> C(Math.max(acc.x, co.x), Math.max(acc.y, co.y))}
+        }
+}
+
 fun Char.toAlphabetIndex(): Int {
         if (this in 'a'..'z')
                 return this.toByte().toInt() - 'a'.toByte().toInt()
