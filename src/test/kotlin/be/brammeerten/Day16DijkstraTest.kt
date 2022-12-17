@@ -1,37 +1,39 @@
 package be.brammeerten
 
+import be.brammeerten.graphs.Dijkstra
+import be.brammeerten.graphs.Graph
+import be.brammeerten.graphs.Node
+import be.brammeerten.graphs.Vertex
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class Day16DijkstraTest {
 
-    val dijkCache = HashMap<Pair<String, String>, List<Node>?>()
+    val dijkstraCache = HashMap<Pair<String, String>, List<Valve>?>()
 
     @Test
     fun `part 1a`() {
         val graph = readGraph(readFile("day16/input.txt"))
-        val graphSize = graph.nodes.size
-        graph.simplify()
-        println("Simplified graph from ${graphSize} to ${graph.nodes.size}")
         Assertions.assertEquals(1651, solve(graph))
     }
+
     val possibilities = 1307674368000L
     var indexx = 1
 
-    fun solve(graph: Graph): Int {
+    fun solve(graph: CaveGraph): Int {
         val cur = graph.nodes["AA"]!!
         return solve(graph, cur, 0, 0, HashSet(), graph.nodes.values.toHashSet())
     }
 
-    fun solve(graph: Graph, cur: Node, minute: Int, pressure: Int, visited: Set<Node>, openTarget: Set<Node>,
-    level: Int = 0): Int {
+    fun solve(
+        graph: CaveGraph, cur: Valve, minute: Int, pressure: Int, visited: Set<Valve>, openTarget: Set<Valve>): Int {
         if (minute == 30) return pressure
 
         var newPressure = pressure
         var newMinute = minute
 
         // spend minute opening valve
-        if (cur.rate != 0) {
+        if (cur.value != 0) {
             newPressure += graph.getPressureOfRound(visited)
             newMinute++
         }
@@ -49,135 +51,76 @@ class Day16DijkstraTest {
             return newPressure + (pressureOfRound * (30 - newMinute))
         }
 
-        return newTargets.maxOf{ target ->
-            if (indexx % 1000000 == 0) println("${indexx} / $possibilities (${indexx.toFloat()/possibilities})")
+        return newTargets.maxOf { target ->
+            if (indexx % 1000000 == 0) println("${indexx} / $possibilities (${indexx.toFloat() / possibilities})")
             indexx++
 
-            val path = dijk(graph, cur.name, target.name)!!
+            val path = Dijkstra.findShortestPath(graph, cur.key, target.key, dijkstraCache)!!
             val steps = path.windowed(2).sumOf { (from, to) ->
-                from.linksTo.find { it.target==to.name }!!.weight
+                from.vertices.find { it.to == to.key }!!.weight
             }
 
             val newMinutes = newMinute + steps - 1
-            val newPressures = newPressure + ((steps-1) * pressureOfRound)
-            solve(graph, target, newMinutes, newPressures, newVisited, newTargets, level+1)
+            val newPressures = newPressure + ((steps - 1) * pressureOfRound)
+            solve(graph, target, newMinutes, newPressures, newVisited, newTargets)
         }
     }
 
-    fun readGraph(lines: List<String>): Graph {
-        val graph = Graph()
+    fun CaveGraph.getPressureOfRound(visited: Set<Valve>): Int {
+        return visited.sumOf { it.value }
+    }
+
+
+    /**
+     * ====================== READING AND SIMPLIFYING THE GRAPH ====================
+     */
+    fun readGraph(lines: List<String>): CaveGraph {
+        val graph = CaveGraph()
         lines
             .map { extractRegexGroups("^Valve (.+) has flow rate=(\\d+); tunnels? leads? to valves? (.+)$", it) }
-            .forEach { matches ->
-                graph.addNode(matches[0], matches[1].toInt(), matches[2].split(", ").map { Vertex(it, 1) })
-            }
-
-        return graph
+            .forEach { matches -> graph.addNode(matches[0], matches[1].toInt(), matches[2].split(", ").map { Vertex(it, 1) }) }
+        return graph.simplify()
     }
 
-    class Graph {
-        val nodes = HashMap<String, Node>()
-
-        fun addNode(name: String, rate: Int, linksTo: List<Vertex>) {
-            nodes.putIfAbsent(name, Node(name, rate))
-            val n = nodes[name]!!.addLinksTo(linksTo)
-            nodes[name] = n.setRate(rate)
+    fun CaveGraph.simplify(): CaveGraph {
+        while (true) {
+            val remove = nodes.values.firstOrNull { it.value == 0 && it.key != "AA" } ?: break
+            remove(remove)
         }
+        return this
+    }
 
-        fun getPressureOfRound(visited: Set<Node>): Int {
-            return visited.sumOf { it.rate }
-        }
-
-        fun simplify() {
-            while(true) {
-                val remove = nodes.values.filter { it.rate ==0 && it.name != "AA" }.firstOrNull()
-                if (remove == null) break
-                val neighbours = remove.linksTo
-                neighbours.forEach{neighbour ->
-                    val others = neighbours.filter { it != neighbour }
-                    others.forEach{other ->
-                        val newLink = Vertex(other.target, neighbour.weight + other.weight)
-                        if (nodes[neighbour.target] == null) {
-                            println()
-                        }
-                        val existingLink = nodes[neighbour.target]!!.linksTo.firstOrNull { it.target == newLink.target }
-                        if (existingLink != null) {
-                            if (newLink.weight < existingLink.weight) {
-                                nodes[neighbour.target] = nodes[neighbour.target]!!.removeLinkTo(existingLink)
-                            }
-                        }
-                        nodes[neighbour.target] = nodes[neighbour.target]!!.removeLinkTo(remove)
-                        nodes[neighbour.target] = nodes[neighbour.target]!!.addLinksTo(listOf(newLink))
+    fun CaveGraph.remove(node: Valve) {
+        val neighbours = node.vertices
+        neighbours.forEach { neighbour ->
+            neighbours
+                .filter { it != neighbour }
+                .forEach { newNeighbour ->
+                    var curNode = nodes[neighbour.to]!!
+                    val newLink = Vertex(newNeighbour.to, neighbour.weight + newNeighbour.weight)
+                    val existingLink = curNode.vertices.firstOrNull { it.to == newLink.to }
+                    if (existingLink != null && newLink.weight < existingLink.weight) {
+                        curNode = curNode.removeVertex(existingLink)
                     }
+                    nodes[neighbour.to] = curNode.removeVertexTo(node).addVertex(newLink)
                 }
-                nodes.remove(remove.name)
-            }
         }
+        nodes.remove(node.key)
     }
 
-    data class Node(val name: String, val rate: Int = -1, val linksTo: List<Vertex> = emptyList()) {
-        fun addLinksTo(nodes: List<Vertex>): Node {
-            return Node(name, rate, linksTo + nodes)
-        }
-
-        fun removeLinkTo(node: Vertex): Node {
-            return Node(name, rate, linksTo - node)
-        }
-
-        fun removeLinkTo(node: Node): Node {
-            return Node(name, rate, linksTo.filter { it.target != node.name }.toList())
-        }
-
-        fun setRate(flowRate: Int): Node {
-            return Node(name, flowRate, linksTo)
-        }
+    fun <K, V> Node<K, V>.removeVertex(vertex: Vertex<K>): Node<K, V> {
+        return Node(key, value, vertices - vertex)
     }
 
-    fun dijk(graph: Graph, start: String, end: String): List<Node>? {
-        val cache = dijkCache.get(start to end)
-        if (cache != null) return cache
-
-        val unvisited = HashSet<String>(graph.nodes.keys)
-        val prevs = HashMap<String, String?>()
-
-        val distances = HashMap<String, Int>()
-        graph.nodes.values.forEach{distances.put(it.name, Int.MAX_VALUE)}
-        distances[start] = 0
-
-        while(unvisited.isNotEmpty()) {
-            val cur: Node = graph.nodes.values.filter { unvisited.contains(it.name) }.minBy { distances[it.name]!! }
-            unvisited.remove(cur.name)
-
-            cur.linksTo.forEach { neighbour ->
-                val d = distances[cur.name]!! + neighbour.weight
-                if (d < distances[neighbour.target]!!) {
-                    distances[neighbour.target] = d
-                    prevs[neighbour.target] = cur.name
-                }
-            }
-        }
-
-        val result = toPath(end, start, prevs, graph)
-        dijkCache[start to end] = result
-        dijkCache[end to start] = result?.reversed()
-        println("Cache size ${dijkCache.size}/256")
-        return result
-
+    fun <K, V> Node<K, V>.removeVertexTo(node: Node<K, V>): Node<K, V> {
+        return Node(key, value, vertices.filter { it.to != node.key }.toList())
     }
 
-
-    private fun toPath(endNodeIndex: String, startNodeIndex: String, prevs: HashMap<String, String?>, graph: Graph): List<Node>? {
-        val path = ArrayList<String>()
-        var curr: String? = endNodeIndex
-        while (curr != null && curr != startNodeIndex) {
-            path.add(curr)
-            curr = prevs[curr]
-        }
-
-        if (curr == null) return null
-        path.add(curr)
-        return path.map { graph.nodes[it]!! }.reversed()
+    fun <K, V> Node<K, V>.addVertex(vertex: Vertex<K>): Node<K, V> {
+        return Node(key, value, vertices + vertex)
     }
 
-    data class Vertex(val target: String, val weight: Int)
 }
+
+typealias CaveGraph = Graph<String, Int>
+typealias Valve = Node<String, Int>
