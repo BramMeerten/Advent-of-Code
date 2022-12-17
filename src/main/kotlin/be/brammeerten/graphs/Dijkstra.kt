@@ -17,7 +17,6 @@ object Dijkstra {
         if (cache != null) {
             cache[start to end] = result
             cache[end to start] = result?.reversed()
-            println("Cache size ${cache.size}/256")
         }
 
         return result

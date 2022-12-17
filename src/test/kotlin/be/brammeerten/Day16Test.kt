@@ -1,156 +1,124 @@
 package be.brammeerten
 
+import be.brammeerten.graphs.Dijkstra
+import be.brammeerten.graphs.Graph
+import be.brammeerten.graphs.Node
+import be.brammeerten.graphs.Vertex
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
-import kotlin.system.exitProcess
 
-class Day16Test {
+class Day16DijkstraTest {
+    private val START = "AA"
+
+    val dijkstraCache = HashMap<Pair<String, String>, List<Valve>?>()
 
     @Test
     fun `part 1a`() {
-        val graph = readGraph(readFile("day16/input.txt"))
+        val graph = readGraph(readFile("day16/exampleInput.txt"))
         Assertions.assertEquals(1651, solve(graph))
     }
 
-    fun solve(graph: Graph): Int {
-        val cur = graph.nodes["AA"]!!
-        return solve(graph, cur, 0, 0, HashSet<Node>(), graph.nodes.values.toHashSet())
+    @Test
+    fun `part 1aReal`() {
+        val graph = readGraph(readFile("day16/input.txt"))
+        val solved = solve(graph)
+        Assertions.assertEquals(1647, solved)
     }
 
-    fun solve(graph: Graph, cur: Node, minute: Int, pressure: Int, visited: Set<Node>, openTarget: Set<Node>,
-//              queue: List<String> = ArrayList()): Int {
-              ): Int {
-        if (minute == 30) return pressure
+    fun solve(graph: CaveGraph): Int {
+        val state = State(graph.nodes[START]!!, 0, 0, 0)
+        val notVisited = HashMap(graph.nodes)
+        notVisited.remove(START)
 
-//        val newQueue = ArrayList(queue)
-        val vis = visited + cur
-        val tar = openTarget - cur
-        var pressureOfRound = graph.getPressureOfRound(visited)
-        var newPressure = pressure + pressureOfRound
-        pressureOfRound = graph.getPressureOfRound(vis)
-        if (cur.rate != 0) {
-//            newQueue.add("minute $minute:\tOpen valve ${cur.name}\t\t$newPressure")
-        } else {
-//            newQueue.add("minute $minute:\tMove on")
-            newPressure -= pressureOfRound
-        }
-
-        if (tar.isEmpty()) {
-//            if (1688 == pressure + (pressureOfRound * (30 - minute))) {
-//                queue.forEach { println(it) }
-//                exitProcess(0)
-//            }
-            return pressure + (pressureOfRound * (30 - minute))
-        }
-
-        return tar.maxOf{ target ->
-//            val newNewQueue = ArrayList(newQueue)
-            val path = findShortestPath(graph, cur.name, target.name)!!
-            val distance = path.size-1
-            var newMinute = minute
-            var newNewPress = newPressure
-            for (i in 1 until path.size) {
-                if (newMinute >= 30) {
-//                    if (1688 == newNewPress) {
-//                        queue.forEach { println(it) }
-//                        exitProcess(0)
-//                    }
-                    return newNewPress - pressureOfRound
-                }
-                newMinute++
-                newNewPress += pressureOfRound
-//                newNewQueue.add("minute $newMinute:\tMove to valve ${path[i].name}\t\t$newNewPress")
-            }
-
-            solve(graph, target, if(target.rate==0)newMinute else newMinute+1, newNewPress, vis, tar) // , newNewQueue)
+        return notVisited.values.maxOf { target ->
+            trySolution(graph, state, target, notVisited, 1)
         }
     }
 
-    fun readGraph(lines: List<String>): Graph {
-        val graph = Graph()
+    fun trySolution(graph: CaveGraph, state: State, target: Valve, notVisited: Map<String, Valve>, count: Int): Int {
+        // new state
+        val newState = openValve(graph, target, state)
+        if (newState.time == 30) return newState.pressure
+
+        // new targets
+        val newNotVisited = HashMap(notVisited)
+        newNotVisited.remove(target.key)
+
+        // no targets left, wait
+        if (newNotVisited.isEmpty())
+            return newState.pressure + ((30-newState.time) * newState.pressurePerRound)
+
+        // try all targets
+        return newNotVisited.values.maxOf { trySolution(graph, newState, it, newNotVisited, count+1) }
+    }
+
+    fun openValve(graph: CaveGraph, to: Valve, state: State): State {
+        val path = Dijkstra.findShortestPath(graph, state.position.key, to.key, dijkstraCache)!!
+        val steps = path.windowed(2).sumOf { (from, to) -> from.vertices.find { it.to == to.key }!!.weight }
+
+        // Not enough time to reach valve and open it, just stay still
+        if (state.time + steps >= 30) {
+            return State(state.position, 30, state.pressure + ((30-state.time)*state.pressurePerRound), state.pressurePerRound)
+        }
+
+        // Run to valve and open it
+        val timePassed = steps + 1
+        val pressure = state.pressure + (timePassed * state.pressurePerRound)
+        return State(to, state.time + timePassed, pressure, state.pressurePerRound + to.value)
+    }
+
+    /**
+     * ====================== READING AND SIMPLIFYING THE GRAPH ====================
+     */
+    fun readGraph(lines: List<String>): CaveGraph {
+        val graph = CaveGraph()
         lines
             .map { extractRegexGroups("^Valve (.+) has flow rate=(\\d+); tunnels? leads? to valves? (.+)$", it) }
-            .forEach { matches ->
-                graph.addNode(matches[0], matches[1].toInt(), matches[2].split(", "))
-            }
-
-        return graph
+            .forEach { matches -> graph.addNode(matches[0], matches[1].toInt(), matches[2].split(", ").map { Vertex(it, 1) }) }
+        return graph.simplify()
     }
 
-    class Graph {
-        val nodes = HashMap<String, Node>()
-//        val visited = HashSet<Node>()
-//        var openTargets = HashSet<Node>()
-
-        fun addNode(name: String, rate: Int, linksTo: List<String>) {
-            nodes.putIfAbsent(name, Node(name, rate))
-            val n = nodes[name]!!.addLinksTo(linksTo)
-            nodes[name] = n.setRate(rate)
-//            openTargets = nodes.values.filter { it.rate != 0 }.toHashSet()
+    fun CaveGraph.simplify(): CaveGraph {
+        while (true) {
+            val remove = nodes.values.firstOrNull { it.value == 0 && it.key != START } ?: break
+            remove(remove)
         }
-
-        fun getPressureOfRound(visited: Set<Node>): Int {
-            return visited.sumOf { it.rate }
-        }
-
-        private fun getOrAddIfMissing(nodeName: String): Node {
-            nodes.putIfAbsent(nodeName, Node(nodeName))
-            return nodes[nodeName]!!
-        }
+        return this
     }
 
-    data class Node(val name: String, val rate: Int = -1, val linksTo: List<String> = emptyList()) {
-        fun addLinksTo(nodes: List<String>): Node {
-            return Node(name, rate, linksTo + nodes)
-        }
-
-        fun setRate(flowRate: Int): Node {
-            return Node(name, flowRate, linksTo)
-        }
-    }
-
-
-
-    fun findShortestPath(graph: Graph, startNodeIndex: String, endNodeIndex: String): List<Node>? {
-        val prevs = traverseGraphToEnd(graph, startNodeIndex)
-        return toPath(endNodeIndex, startNodeIndex, prevs, graph)
-    }
-
-    private fun traverseGraphToEnd(graph: Graph, startNodeIndex: String): HashMap<String, String?> {
-        val queue = LinkedList<String>()
-        val visited = HashSet<String>()
-        val prevs = HashMap<String, String?>()
-
-        queue.add(startNodeIndex)
-        visited.add(startNodeIndex)
-
-        while (!queue.isEmpty()) {
-            val nodeI = queue.remove()
-            for (neighbour in graph.nodes[nodeI]!!.linksTo) {
-                if (!visited.contains(neighbour)) {
-                    queue.add(neighbour)
-                    visited.add(neighbour)
-                    prevs[neighbour] = nodeI
+    fun CaveGraph.remove(node: Valve) {
+        val neighbours = node.vertices
+        neighbours.forEach { neighbour ->
+            neighbours
+                .filter { it != neighbour }
+                .forEach { newNeighbour ->
+                    var curNode = nodes[neighbour.to]!!
+                    val newLink = Vertex(newNeighbour.to, neighbour.weight + newNeighbour.weight)
+                    val existingLink = curNode.vertices.firstOrNull { it.to == newLink.to }
+                    if (existingLink != null && newLink.weight < existingLink.weight) {
+                        curNode = curNode.removeVertex(existingLink)
+                    }
+                    nodes[neighbour.to] = curNode.removeVertexTo(node).addVertex(newLink)
                 }
-            }
         }
-        return prevs
+        nodes.remove(node.key)
     }
 
-    private fun toPath(endNodeIndex: String, startNodeIndex: String, prevs: HashMap<String, String?>, graph: Graph): List<Node>? {
-        val path = ArrayList<String>()
-        var curr: String? = endNodeIndex
-        while (curr != null && curr != startNodeIndex) {
-            path.add(curr)
-            curr = prevs[curr]
-        }
-
-        if (curr == null) return null
-        path.add(curr)
-        return path.map { graph.nodes[it]!! }.reversed()
+    fun <K, V> Node<K, V>.removeVertex(vertex: Vertex<K>): Node<K, V> {
+        return Node(key, value, vertices - vertex)
     }
+
+    fun <K, V> Node<K, V>.removeVertexTo(node: Node<K, V>): Node<K, V> {
+        return Node(key, value, vertices.filter { it.to != node.key }.toList())
+    }
+
+    fun <K, V> Node<K, V>.addVertex(vertex: Vertex<K>): Node<K, V> {
+        return Node(key, value, vertices + vertex)
+    }
+
 }
+
+typealias CaveGraph = Graph<String, Int>
+typealias Valve = Node<String, Int>
+
+data class State(val position: Valve, val time: Int, val pressure: Int, val pressurePerRound: Int)
