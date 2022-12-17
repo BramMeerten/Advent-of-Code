@@ -7,7 +7,7 @@ import be.brammeerten.graphs.Vertex
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
-class Day16DijkstraTest {
+class Day16Test {
     private val START = "AA"
 
     val dijkstraCache = HashMap<Pair<String, String>, List<Valve>?>()

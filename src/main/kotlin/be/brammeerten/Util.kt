@@ -74,6 +74,13 @@ data class C(val x: Int, val y: Int) {
         fun max(vararg cos: C): C {
                 return cos.fold(this) {acc, co -> C(Math.max(acc.x, co.x), Math.max(acc.y, co.y))}
         }
+
+        companion object {
+                @JvmField val UP = C(0, -1)
+                @JvmField val DOWN = C(0, 1)
+                @JvmField val RIGHT = C(1, 0)
+                @JvmField val LEFT = C(-1, 0)
+        }
 }
 
 fun Char.toAlphabetIndex(): Int {
