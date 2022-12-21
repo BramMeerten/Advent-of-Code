@@ -87,6 +87,23 @@ data class C3(val x: Int, val y: Int, val z: Int) {
         operator fun plus(co: C3): C3 {
                 return C3(x + co.x, y + co.y, z + co.z)
         }
+
+        operator fun minus(co: C3): C3 {
+                return C3(x - co.x, y - co.y, z - co.z)
+        }
+
+        fun min(vararg cos: C3): C3 {
+                return cos.fold(this) {acc, co -> C3(Math.min(acc.x, co.x), Math.min(acc.y, co.y), Math.min(acc.z, co.z))}
+        }
+
+        fun max(vararg cos: C3): C3 {
+                return cos.fold(this) {acc, co -> C3(Math.max(acc.x, co.x), Math.max(acc.y, co.y), Math.max(acc.z, co.z))}
+        }
+
+        companion object {
+                @JvmField val MAX = C3(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
+                @JvmField val MIN = C3(Int.MIN_VALUE, Int.MIN_VALUE, Int.MIN_VALUE)
+        }
 }
 
 fun Char.toAlphabetIndex(): Int {
