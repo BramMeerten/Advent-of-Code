@@ -83,6 +83,12 @@ data class C(val x: Int, val y: Int) {
         }
 }
 
+data class C3(val x: Int, val y: Int, val z: Int) {
+        operator fun plus(co: C3): C3 {
+                return C3(x + co.x, y + co.y, z + co.z)
+        }
+}
+
 fun Char.toAlphabetIndex(): Int {
         if (this in 'a'..'z')
                 return this.toByte().toInt() - 'a'.toByte().toInt()
