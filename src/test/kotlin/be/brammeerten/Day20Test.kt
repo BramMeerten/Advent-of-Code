@@ -8,8 +8,8 @@ class Day20Test {
     @Test
     fun `part 1a`() {
         val coordinates = readInput("day20/exampleInput.txt")
-        val mix = mix(coordinates)
-        assertThat(mix).isEqualTo(listOf(1L, 2L, -3L, 4L, 0L, 3L, -2L))
+        val mix = mix(coordinates.mapIndexed { i, c -> i to c })
+        assertThat(mix.map { it.second }).isEqualTo(listOf(1L, 2L, -3L, 4L, 0L, 3L, -2L))
 
         assertThat(get(mix, 1000)).isEqualTo(4L)
         assertThat(get(mix, 2000)).isEqualTo(-3L)
@@ -20,7 +20,7 @@ class Day20Test {
     @Test
     fun `part 1b`() {
         val coordinates = readInput("day20/input.txt")
-        val mix = mix(coordinates)
+        val mix = mix(coordinates.mapIndexed { i, c -> i to c })
         assertThat(get(mix, 1000) + get(mix, 2000) + get(mix, 3000)).isEqualTo(7153L)
     }
 
@@ -28,32 +28,40 @@ class Day20Test {
     fun `part 2`() {
         val coordinates = readInput("day20/exampleInput.txt")
             .map { it * 811589153L }
-        println(coordinates.map { it%7 })
-        println("Expected " + listOf(1, 2, 5, -5, 1, 0, 2).map { it * 811589153L})
-        var mix = mix(coordinates)
-        assertThat(mix).isEqualTo(listOf(0L, -2434767459L, 3246356612L, -1623178306L, 2434767459L, 1623178306L, 811589153L))
-
+        val input = coordinates.mapIndexed { i, c -> i to c }
+        var mix = mix(input)
+        mix = mix(mix)
+        mix = mix(mix)
+        mix = mix(mix)
+        mix = mix(mix)
+        mix = mix(mix)
+        mix = mix(mix)
+        mix = mix(mix)
+        mix = mix(mix)
+        mix = mix(mix)
+        assertThat(get(mix, 1000) + get(mix, 2000) + get(mix, 3000)).isEqualTo(1623178306L)
     }
 
     fun readInput(file: String) = readFile(file).map { it.toLong() }
 
-    fun mix(original: List<Long>): List<Long> {
-        val new = ArrayList(original.mapIndexed { i, co -> i to co })
+    fun mix(original: List<Pair<Int, Long>>): List<Pair<Int,Long>> {
+        val copy = ArrayList(original)
         for (i in original.indices) {
-            val cur = new.find { it.first == i }!!
-            val curI = new.indexOf(cur)
+            val cur = copy.find { it.first == i }!!
+            val curI = copy.indexOf(cur)
             val diff = (curI + cur.second)
             val newI = if (diff > 0) (diff % (original.size-1)) else ((original.size-1) + (diff % (original.size-1)))
-            new.remove(cur)
-            new.add(newI.toInt(), -1 to cur.second)
+            copy.remove(cur)
+            copy.add(newI.toInt(), i to cur.second)
         }
-        return new.map { it.second }
+        return copy
     }
 
-    fun get(list: List<Long>, index: Int): Long {
-        val zeroI = list.indexOf(0)
-        val i = (zeroI + index) % list.size
-        return list[i]
+    fun get(list: List<Pair<Int, Long>>, index: Int): Long {
+        val ll = list.map { it.second }
+        val zeroI = ll.indexOf(0)
+        val i = (zeroI + index) % ll.size
+        return ll[i]
     }
 
 }
