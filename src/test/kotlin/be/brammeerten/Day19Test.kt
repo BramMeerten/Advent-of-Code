@@ -2,6 +2,14 @@ package be.brammeerten
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import kotlin.math.max
+
+val POTENTIAL_EXTRA_GEODES_PER_MINUTE_LEFT = createSequence(listOf(0), 0, 32)
+fun createSequence(total: List<Int>, robots: Int, timeLeft: Int): List<Int> {
+    if (timeLeft == 0) return total
+    val newTotal = (total.lastOrNull() ?: 0) + robots
+    return createSequence(total + newTotal, robots+1, timeLeft-1)
+}
 
 class Day19Test {
 
@@ -26,7 +34,6 @@ class Day19Test {
     @Test
     fun `part 2b`() {
         val bluePrints = readBlueprints("day19/input.txt")
-        // blueprint 1 = 10
         assertThat(getGeodesMultiplied(bluePrints.subList(0, 3), minutes = 32)).isEqualTo(0)
     }
 
@@ -79,16 +86,29 @@ class Day19Test {
 
         fun getMaxGeodes(minutes: Int = 24): State {
             val start = State(minute = 0, 0, 0, 0, 0, oreRobots = 1, 0, 0, 0, null, /*emptyList()*/)
-            return sim(start, minutes)
+            return sim(start, minutes, 0)
         }
 
-        fun sim(state: State, minutes: Int): State {
+        fun sim(state: State, minutes: Int, curMax: Int): State {
             if (state.minute >= minutes)
                 return state
 
-            return getOptions(state)
-                .map { sim(it, minutes) }
-                .maxBy { it.geode }
+            var result = state
+            var currentMax = curMax
+            for (option in getOptions(state)) {
+                if (getPotential(option, minutes) < currentMax) continue
+                val simulation = sim(option, minutes, currentMax)
+
+                result = if (simulation.geode > result.geode) simulation else result
+                currentMax = max(result.geode, currentMax)
+            }
+
+            return result
+        }
+
+        fun getPotential(state: State, minutes: Int): Int {
+            val potential = state.geode + (state.geodeRobots * (minutes - state.minute))
+            return potential + POTENTIAL_EXTRA_GEODES_PER_MINUTE_LEFT[minutes - state.minute]
         }
 
         fun getOptions(state: State): List<State> {
@@ -98,15 +118,15 @@ class Day19Test {
             // Koop of spaar als nog iets beschikbaar kan komen
             // Koop niet wat al vorige ronde gekocht had kunnen worden (tenzij er iets anders gekocht is vorige ronde)
             if (canAfford.isEmpty()) {
-                return listOf(state.advance().addHistory())
+                return listOf(state.advance())
 
             } else {
                 val options = canAfford
                     .filter { !it.value.couldAffordInPrevRound(state) || state.hasNewBots() }
-                    .map { state.advance().buyRobot(it.key, it.value).addHistory()}
+                    .map { state.advance().buyRobot(it.key, it.value)}
 
                 if (canAfford.size < this.robotCosts.size)
-                    return options + state.advance().addHistory()
+                    return options + state.advance()
                 else if (options.isEmpty())
                     throw IllegalStateException("Zou nooit mogen")
                 else
@@ -128,9 +148,7 @@ class Day19Test {
     data class State(val minute: Int,
                      val ores: Int, val clay: Int, val obsidian: Int, val geode: Int,
                      val oreRobots: Int, val clayRobots: Int, val obsidianRobots: Int, val geodeRobots: Int,
-                     val oldState: State? = null,
-//                     val history: List<String>) {
-                     ) {
+                     val oldState: State? = null) {
         fun get(resource: String): Int {
             return when (resource) {
                 "ore" -> ores
@@ -146,22 +164,11 @@ class Day19Test {
                 minute+1,
                 ores+oreRobots, clay+clayRobots, obsidian+obsidianRobots, geode+geodeRobots,
                 oreRobots, clayRobots, obsidianRobots, geodeRobots,
-                this,
-//                history
+                this
             )
         }
 
-        fun addHistory(): State {
-            return State(
-                minute,
-                ores, clay, obsidian, geode,
-                oreRobots, clayRobots, obsidianRobots, geodeRobots,
-                oldState,
-//                history + toStr()
-            )
-        }
-
-        fun toStr(): String {
+        override fun toString(): String {
             return "Minute ${minute}: ore($oreRobots, $ores), clay($clayRobots, $clay), obsid(${obsidianRobots}, $obsidian), geode($geodeRobots, $geode), "
         }
 
@@ -186,7 +193,6 @@ class Day19Test {
                 obsidianRobots + (if (robot == "obsidian") 1 else 0),
                 geodeRobots + (if (robot == "geode") 1 else 0),
                 oldState,
-//                history
             )
         }
     }
