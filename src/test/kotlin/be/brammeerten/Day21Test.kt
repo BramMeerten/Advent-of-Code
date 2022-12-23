@@ -3,109 +3,74 @@ package be.brammeerten
 import be.brammeerten.Day21Test.MonkeyOperation.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import kotlin.math.exp
 
 class Day21Test {
 
     @Test
     fun `part 1a`() {
         val monkeys = readInput("day21/exampleInput.txt")
-        assertThat(getRootMonkeyNumber(monkeys)).isEqualTo(152L)
+        assertThat(getSolutions(monkeys)["root"]).isEqualTo(152L)
     }
 
     @Test
     fun `part 1b`() {
         val monkeys = readInput("day21/input.txt")
-        assertThat(getRootMonkeyNumber(monkeys)).isEqualTo(3L)
+        assertThat(getSolutions(monkeys)["root"]).isEqualTo(364367103397416)
     }
 
-    // sjmn=150, czwc = 99433652936583
     @Test
     fun `part 2a`() {
-        val monkeys = readInput("day21/exampleInput.txt").filter { it.name != "humn" }.toMutableList()
-        assertThat(solve(monkeys, "pppw", "150")).isEqualTo(301)
+        val monkeys = readInput("day21/exampleInput.txt").filter { it.name != "humn" }
+        assertThat(findHumanValue(monkeys)).isEqualTo(301)
     }
 
-    // sjmn=150, czwc = 99433652936583
     @Test
     fun `part 2b`() {
-        val monkeys = readInput("day21/input.txt").filter { it.name != "humn" }.toMutableList()
-        assertThat(solve(monkeys, "wvbw", "99433652936583")).isEqualTo(301)
+        val monkeys = readInput("day21/input.txt").filter { it.name != "humn" }
+        assertThat(findHumanValue(monkeys)).isEqualTo(3782852515583)
     }
 
-    fun getRootMonkeyNumber(monkeys: List<Monkey>): Long {
+    fun getSolutions(monkeys: List<Monkey>): Map<String, Long> {
         val solutions = monkeys
             .filter { it.operation == ABSOLUTE }
             .map { it.name to it.arg1!!.toLong() }
             .toMap().toMutableMap()
-        val unsolved = monkeys.filter { it.operation != ABSOLUTE }.toMutableList()
+        val unsolved = monkeys
+            .filter { it.operation != ABSOLUTE }
+            .map { it.name to it }
+            .toMap().toMutableMap()
 
-        var noodrem = 0
         while (solutions["root"] == null) {
-            unsolved
-                .filter { m -> solutions.containsKey(m.arg1) && solutions.containsKey(m.arg2) }
-                .forEach { m ->
-                    val solution = m.solve(solutions[m.arg1]!!, solutions[m.arg2]!!)
-                    solutions.put(m.name, solution)
-                    unsolved.remove(m)
-                }
-
-
-            noodrem++
-            if (noodrem > 1000)
-                throw IllegalStateException("DUURDE TE LANG, solutions: " + solutions.keys)
-        }
-        return solutions["root"]!!
-    }
-
-    fun whatToYell(monkeys: List<Monkey>, solveFor: String): Long {
-        val solutions = monkeys
-            .filter { it.operation == ABSOLUTE }
-            .map { it.name to it.arg1!!.toLong() }
-            .toMap().toMutableMap()
-        solutions.remove("humn")
-        val unsolved = monkeys.filter { it.operation != ABSOLUTE }.toMutableList()
-
-        var noodrem = 0
-        while (solutions[solveFor] == null) {
-            unsolved
-                .filter { m -> solutions.containsKey(m.arg1) && solutions.containsKey(m.arg2) }
-                .forEach { m ->
-                    val solution = m.solve(solutions[m.arg1]!!, solutions[m.arg2]!!)
-                    solutions.put(m.name, solution)
-                    unsolved.remove(m)
-                }
-
-
-            noodrem++
-            if (noodrem > 1000)
-                throw IllegalStateException("DUURDE TE LANG, solutions: " + solutions.keys)
-        }
-        return solutions[solveFor]!!
-    }
-
-    fun solve(monkeys: List<Monkey>, startName: String, value: String): Long {
-        // Los zoveel mogelijk op
-        val solutions = monkeys
-            .filter { it.operation == ABSOLUTE }
-            .map { it.name to it.arg1!!.toLong() }
-            .toMap().toMutableMap()
-        val unsolved = monkeys.filter { it.operation != ABSOLUTE }.map { it.name to it }.toMap().toMutableMap()
-
-        while (true) {
             val initialSize = solutions.size
             unsolved.values
                 .filter { m -> solutions.containsKey(m.arg1) && solutions.containsKey(m.arg2) }
                 .forEach { m ->
                     val solution = m.solve(solutions[m.arg1]!!, solutions[m.arg2]!!)
-                    solutions.put(m.name, solution)
+                    solutions[m.name] = solution
                     unsolved.remove(m.name)
                 }
 
             if (initialSize == solutions.size) break
         }
+        return solutions
+    }
 
-        var next = unsolved[startName]!!.whatToSolve(value.toLong(), solutions)
+    fun findHumanValue(monkeys: List<Monkey>): Long {
+        val solutions = getSolutions(monkeys)
+        val unsolved = monkeys.filter { !solutions.containsKey(it.name) }.map { it.name to it }.toMap()
+        val root = monkeys.find { it.name == "root" }!!
+
+        if (solutions.containsKey(root.arg1)) {
+            return findHumanValue(solutions, unsolved, root.arg2!!, solutions[root.arg1]!!)
+        } else if (solutions.containsKey(root.arg2)) {
+            return findHumanValue(solutions, unsolved, root.arg1!!, solutions[root.arg2]!!)
+        } else {
+            throw IllegalStateException("Can't solve this")
+        }
+    }
+
+    fun findHumanValue(solutions: Map<String, Long>, unsolved: Map<String, Monkey>, monkeyName: String, monkeyValue: Long): Long {
+        var next = unsolved[monkeyName]!!.whatToSolve(monkeyValue, solutions)
         while(next.first != "humn") {
             next = unsolved[next.first]!!.whatToSolve(next.second, solutions)
         }
