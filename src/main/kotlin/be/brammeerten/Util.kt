@@ -100,9 +100,19 @@ data class C3(val x: Int, val y: Int, val z: Int) {
                 return cos.fold(this) {acc, co -> C3(Math.max(acc.x, co.x), Math.max(acc.y, co.y), Math.max(acc.z, co.z))}
         }
 
+        override fun toString(): String {
+                return "($x, $y, $z)"
+        }
+
         companion object {
                 @JvmField val MAX = C3(Int.MAX_VALUE, Int.MAX_VALUE, Int.MAX_VALUE)
                 @JvmField val MIN = C3(Int.MIN_VALUE, Int.MIN_VALUE, Int.MIN_VALUE)
+                @JvmField val RIGHT = C3(1, 0, 0)
+                @JvmField val LEFT = C3(-1, 0, 0)
+                @JvmField val UP = C3(0, -1, 0)
+                @JvmField val DOWN = C3(0, 1, 0)
+                @JvmField val FRONT = C3(0, 0, 1)
+                @JvmField val BACK = C3(0, 0, -1)
         }
 }
 

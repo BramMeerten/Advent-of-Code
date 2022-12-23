@@ -29,11 +29,46 @@ class Day22Test {
         assertThat(map.getPassword()).isEqualTo(55244)
     }
 
+    @Test
+    fun `part 2a`() {
+        val map = read3DMap("day22/exampleInput.txt")
+        val instructions = readInstructions("day22/exampleInput.txt")
+
+        for (i in instructions)
+            map.execute(i)
+        assertThat(map.pos).isEqualTo(C3(0, 1, 3))
+    }
+
+    @Test
+    fun `part 2b`() {
+        val map = read3DMap("day22/input.txt")
+        val instructions = readInstructions("day22/input.txt")
+
+        for (i in instructions)
+            map.execute(i)
+        assertThat(map.pos).isEqualTo(C3(0, 1, 3))
+    }
+
     fun readMap(file: String): MMap {
         val lines = readFile(file).dropLast(2)
         val w = lines.maxOf { it.length }
 
         return MMap(lines.map {
+            it.padEnd(w, ' ').toCharList().map { c ->
+                when (c) {
+                    '#' -> WALL
+                    '.' -> OPEN
+                    else -> NOTHING
+                }
+            }.toTypedArray()
+        }.toTypedArray())
+    }
+
+    fun read3DMap(file: String): Map3D {
+        val lines = readFile(file).dropLast(2)
+        val w = lines.maxOf { it.length }
+
+        return Map3D(lines.map {
             it.padEnd(w, ' ').toCharList().map { c ->
                 when (c) {
                     '#' -> WALL
@@ -62,6 +97,113 @@ class Day22Test {
         }
 
         return instructions
+    }
+
+    class Map3D(val map2d: Array<Array<Square>>) {
+        val n = map2d.size / 3
+        val map3d = convert(map2d)
+        var face: C3 = C3.RIGHT
+        var pos: C3 = C3(1, 0, 1)
+
+        fun execute(instruction: Pair<Instruction, Int>) {
+            if (instruction.first == ROTATE_RIGHT)
+                face = rotateRight(pos, face)
+            else if (instruction.first == ROTATE_LEFT)
+                face = rotateLeft(pos, face)
+            else {
+                for (i in 0 until instruction.second) {
+                    var new = pos + face
+                    val debugNew = new
+                    val debugFace = face
+                    if (listOf(new.x, new.y, new.z).count { it == 0 || it == n + 1 } >= 2) {
+                        if (new.y == 0 && new.z == 0) face = if (face == C3.UP) C3.FRONT else C3.DOWN
+                        if (new.y == 0 && new.z == n+1) face = if (face == C3.FRONT) C3.DOWN else C3.BACK
+                        if (new.y == 0 && new.x == n+1) face = if (face == C3.RIGHT) C3.DOWN else C3.LEFT
+                        if (new.y == 0 && new.x == 0) face = if (face == C3.LEFT) C3.DOWN else C3.RIGHT
+
+                        if (new.y == n+1 && new.z == 0) face = if (face == C3.DOWN) C3.FRONT else C3.UP
+                        if (new.y == n+1 && new.z == n+1) face = if (face == C3.FRONT) C3.UP else C3.BACK
+                        if (new.y == n+1 && new.x == n+1) face = if (face == C3.RIGHT) C3.UP else C3.LEFT
+                        if (new.y == n+1 && new.x == 0) face = if (face == C3.LEFT) C3.UP else C3.RIGHT
+
+                        if (new.x == 0 && new.z == 0) face = if (face == C3.LEFT) C3.FRONT else C3.RIGHT
+                        if (new.x == n+1 && new.z == 0) face = if (face == C3.RIGHT) C3.FRONT else C3.LEFT
+                        if (new.x == n+1 && new.z == n+1) face = if (face == C3.RIGHT) C3.BACK else C3.LEFT
+                        if (new.x == 0 && new.z == n+1) face = if (face == C3.FRONT) C3.RIGHT else C3.BACK
+
+                        new += face
+                    }
+
+                    if (map3d[new.z][new.y][new.x])
+                        break
+                    pos = new
+                }
+            }
+        }
+
+        fun rotateRight(pos: C3, c: C3): C3 {
+            if (pos.x == n+1) return C3(c.x, -c.z, c.y)
+            if (pos.x == 0) return C3(c.x, c.z, -c.y)
+            if (pos.y == 0) return C3(c.z, c.y, c.x)
+            if (pos.y == n+1) return C3(-c.z, c.y, -c.x)
+            if (pos.z == n+1) return C3(-c.y, c.x, c.z)
+            if (pos.z == 0) return C3(c.y, -c.x, c.z)
+            throw IllegalStateException("SHOULD NOT EXIST")
+        }
+
+        fun rotateLeft(pos: C3, c: C3): C3 {
+            if (pos.x == 0) return C3(c.x, -c.z, c.y)
+            if (pos.x == n+1) return C3(c.x, c.z, -c.y)
+            if (pos.y == n+1) return C3(c.z, c.y, c.x)
+            if (pos.y == 0) return C3(-c.z, c.y, -c.x)
+            if (pos.z == 0) return C3(-c.y, c.x, c.z)
+            if (pos.z == n+1) return C3(c.y, -c.x, c.z)
+            throw IllegalStateException("SHOULD NOT EXIST")
+        }
+
+        companion object {
+            fun convert(map2d: Array<Array<Square>>): Array<Array<Array<Boolean>>> {
+                val n = map2d.size / 3
+                val matrix = getConversionMatrix(n)
+                val map = Array(n+2) {Array(n+2) {Array(n+2){false} } }
+                for (y in map2d.indices) {
+                    for (x in map2d[y].indices) {
+                        val convX = x / n
+                        val convY = y / n
+                        val sideX = x % n
+                        val sideY = y % n
+                        val co = matrix[convY][convX](C(sideX, sideY))
+//                        print(co.toString().padEnd(5))
+                        if (co != null)
+                            map[co.z][co.y][co.x] = map2d[y][x] == WALL
+
+                    }
+//                    println()
+                }
+                return map
+            }
+
+            fun getConversionMatrix(n: Int) = arrayOf(
+                arrayOf(
+                    { c: C -> null},
+                    { c: C -> null},
+                    { c: C -> C3(c.x + 1, 0, c.y + 1)},
+                    { c: C -> null},
+                ),
+                arrayOf(
+                    { c: C -> C3(n-1 + 1 -c.x, c.y  + 1, 0)},
+                    { c: C -> C3(0, c.y + 1, c.x + 1)},
+                    { c: C -> C3(c.x +1, c.y +1, n-1 +2)},
+                    { c: C -> null},
+                ),
+                arrayOf(
+                    { c: C -> null},
+                    { c: C -> null},
+                    { c: C -> C3(c.x +1, n-1 +2, n-1 -c.y +1)},
+                    { c: C -> C3(n-1 +2, n-1 -c.x +1, n-1 -c.y +1)}
+                )
+            )
+        }
     }
 
     class MMap(val map: Array<Array<Square>>) {
