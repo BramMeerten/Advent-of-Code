@@ -124,3 +124,17 @@ fun Char.toAlphabetIndex(): Int {
         else
                 throw IllegalStateException("Not an alphabetic character: '$this'")
 }
+
+fun gcd(a: Int, b: Int): Int {
+    var aa = a
+    var bb = b
+
+    while (aa != bb) {
+        if (aa > bb)
+            aa -= bb
+        else
+            bb -= aa
+    }
+
+    return aa
+}
