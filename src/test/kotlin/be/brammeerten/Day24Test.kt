@@ -7,10 +7,10 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
 class Day24Test {
-//    val START = C(0, -1)
-//    val STOP = C(5, 4)
-    val START = C(0, -1)
-    val STOP = C(99, 35)
+//    var START = C(0, -1)
+//    var STOP = C(5, 4)
+    var START = C(0, -1)
+    var STOP = C(99, 35)
 
     @Test
     fun `part 1a`() {
@@ -24,11 +24,23 @@ class Day24Test {
         Assertions.assertThat(solve(valley)).isEqualTo(18)
     }
 
+    @Test
+    fun `part 2a`() {
+        val valley = readValley("day24/exampleInput.txt")
+        Assertions.assertThat(solve(valley)).isEqualTo(18)
+    }
+
+    @Test
+    fun `part 2b`() {
+        val valley = readValley("day24/input.txt")
+        Assertions.assertThat(solve(valley)).isEqualTo(713)
+    }
+
     fun solve(valley: Valley): Int {
         val blizzardStates = getBlizzardStates(valley)
 
         val queue = LinkedList<Pair<Int, C>>()
-        val visited = Array(blizzardStates.size){HashSet<C>()}
+        var visited = Array(blizzardStates.size){HashSet<C>()}
         val prevs = Array<Array<Array<C?>>>(blizzardStates.size){Array(valley.h){Array(valley.w){null} } }
         val startPrevs = Array<C?>(blizzardStates.size){null} // because outside of map
         queue.add(0 to START)
@@ -57,11 +69,80 @@ class Day24Test {
                 println("last time tried was: " + node.first)
         }
 
+
+
+
+
+
+        val swap = START
+        START = STOP
+        STOP = swap
+        visited = Array(blizzardStates.size){HashSet<C>()}
+        queue.clear()
+        queue.add(finished!!.first to START)
+        visited[finished.first % blizzardStates.size].add(START)
+        finished = null
+        while (!queue.isEmpty() && finished == null) {
+            val node = queue.remove()
+            for (option in getOptions(node, blizzardStates)) {
+                val time = option.first % blizzardStates.size
+                val newNode = option.second
+                if (!visited[time].contains(newNode)) {
+                    queue.add(option)
+                    visited[time].add(newNode)
+                    if (newNode == STOP) {
+                        finished = node
+                        break
+                    } else if (newNode == START) {
+                        startPrevs[time] = node.second
+                    } else {
+                        prevs[time][newNode.y][newNode.x] = node.second
+                    }
+                }
+            }
+            if (queue.isEmpty())
+                println("last time tried was: " + node.first)
+        }
+
+
+
+        val swap2 = START
+        START = STOP
+        STOP = swap2
+        visited = Array(blizzardStates.size){HashSet<C>()}
+        queue.clear()
+        queue.add(finished!!.first to START)
+        visited[finished.first % blizzardStates.size].add(START)
+        finished = null
+        while (!queue.isEmpty() && finished == null) {
+            val node = queue.remove()
+            for (option in getOptions(node, blizzardStates)) {
+                val time = option.first % blizzardStates.size
+                val newNode = option.second
+                if (!visited[time].contains(newNode)) {
+                    queue.add(option)
+                    visited[time].add(newNode)
+                    if (newNode == STOP) {
+                        finished = node
+                        break
+                    } else if (newNode == START) {
+                        startPrevs[time] = node.second
+                    } else {
+                        prevs[time][newNode.y][newNode.x] = node.second
+                    }
+                }
+            }
+            if (queue.isEmpty())
+                println("last time tried was: " + node.first)
+        }
+
+
         // get path
         if (finished == null)
             throw IllegalStateException("Niet opgelost")
         else {
             val path = arrayListOf<C>(STOP, finished.second)
+            println(finished.first+1)
             for (time in (1 .. finished.first).reversed()) {
                 if (path.last() == START)
                     path.add(startPrevs[time % blizzardStates.size]!!)
