@@ -1,5 +1,6 @@
 package be.brammeerten
 
+import com.sun.org.apache.xpath.internal.operations.Bool
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -16,7 +17,19 @@ class Day23Test {
     fun `part 1b`() {
         val map = readMap("day23/input.txt")
         map.doRounds(10)
-        assertThat(map.countEmptyTiles()).isEqualTo(110)
+        assertThat(map.countEmptyTiles()).isEqualTo(4208)
+    }
+
+    @Test
+    fun `part 2a`() {
+        val map = readMap("day23/exampleInput.txt")
+        assertThat(map.findRoundNoMovement()).isEqualTo(20)
+    }
+
+    @Test
+    fun `part 2b`() {
+        val map = readMap("day23/input.txt")
+        assertThat(map.findRoundNoMovement()).isEqualTo(1016)
     }
 
     fun readMap(file: String): MMap {
@@ -41,33 +54,47 @@ class Day23Test {
 
         fun doRounds(n: Int = 10, print: Boolean = false) = repeat(n) { doRound(it + 1, print) }
 
-        fun doRound(n: Int, print: Boolean) {
+        fun findRoundNoMovement(): Int {
+            var n = 1
+            while(doRound(n, false)) {
+                n++
+            }
+            return n
+        }
+
+        fun doRound(n: Int, print: Boolean): Boolean {
             // part 1
             val targets: HashMap<Elf, C> = hashMapOf()
+            val stay = hashSetOf<Elf>()
             for (elf in map) {
                 val freePositions = getFreePositions(elf)
                 if (freePositions.size == 8) {
-                    targets[elf] = elf
+                    stay.add(elf)
                 } else {
-                    targets[elf] = elf
                     for (option in directions) {
                         if (option.second.map { it + elf }.count { map.contains(it) } == 0) {
                             targets[elf] = elf + option.first
                             break
                         }
                     }
+                    if (targets[elf] == null) stay.add(elf)
                 }
             }
 
             // part 2
             val newMap: HashSet<Elf> = hashSetOf()
+            var count = targets.size
             for (elf in map) {
-                if (targets.values.count { it ==targets[elf]} > 1) {
-                    newMap.add(elf)
-                } else {
-                    newMap.add(targets[elf]!!)
+                if (targets[elf] != null) {
+                    if (targets.values.count { it == targets[elf] } > 1) {
+                        newMap.add(elf)
+                        count--
+                    } else {
+                        newMap.add(targets[elf]!!)
+                    }
                 }
             }
+            newMap.addAll(stay)
             map = newMap
             min = map.reduce{a, b -> a.min(b)}
             max = map.reduce{a, b -> a.max(b)}
@@ -80,6 +107,8 @@ class Day23Test {
                 println("Round $n:")
                 print()
             }
+
+            return count > 0
         }
 
         fun getFreePositions(elf: Elf): List<C> {
