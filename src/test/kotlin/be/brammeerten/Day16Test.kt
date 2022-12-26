@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test
 
 class Day16Test {
     private val START = "AA"
+    var TIME = 30
+    var HEURISTIC_MIN_VISITED = 0
+    var HEURISTIC_MIN_PRESSURE = 0
 
     val dijkstraCache = HashMap<Pair<String, String>, List<Valve>?>()
 
@@ -19,10 +22,26 @@ class Day16Test {
     }
 
     @Test
-    fun `part 1aReal`() {
+    fun `part 1b`() {
         val graph = readGraph(readFile("day16/input.txt"))
         val solved = solve(graph)
         Assertions.assertEquals(1647, solved)
+    }
+
+    @Test
+    fun `part 2a`() {
+        TIME = 26
+        val graph = readGraph(readFile("day16/exampleInput.txt"))
+        Assertions.assertEquals(1707, solveWithElephant(graph))
+    }
+
+    @Test
+    fun `part 2b`() {
+        TIME = 26
+        HEURISTIC_MIN_VISITED = 6
+        HEURISTIC_MIN_PRESSURE = 600
+        val graph = readGraph(readFile("day16/input.txt"))
+        Assertions.assertEquals(2169, solveWithElephant(graph))
     }
 
     fun solve(graph: CaveGraph): Int {
@@ -30,15 +49,29 @@ class Day16Test {
         val notVisited = HashMap(graph.nodes)
         notVisited.remove(START)
 
-        return notVisited.values.maxOf { target ->
-            trySolution(graph, state, target, notVisited, 1)
-        }
+        val solutions = notVisited.values.flatMap { target -> trySolution(graph, state, target, notVisited, 1) }
+        return solutions.maxOf { it.pressure }
     }
 
-    fun trySolution(graph: CaveGraph, state: State, target: Valve, notVisited: Map<String, Valve>, count: Int): Int {
+    fun solveWithElephant(graph: CaveGraph): Int {
+        var state = State(graph.nodes[START]!!, 0, 0, 0)
+        var notVisited = HashMap(graph.nodes)
+        notVisited.remove(START)
+        val solutions1 = notVisited.values.flatMap { target -> trySolution(graph, state, target, notVisited, 1) }
+
+        println("Found possible solutions: ${solutions1.size}")
+
+        return solutions1
+            .flatMap { s1 -> solutions1.map { s2 -> s1 to s2 }
+                .filter { (s1, s2) -> s1.getVisitedSize(graph.nodes.size) + s2.getVisitedSize(graph.nodes.size) -1 <= graph.nodes.keys.size }
+                .filter { (s1, s2) -> s1.getVisited(graph.nodes.keys).none { v -> s2.getVisited(graph.nodes.keys).contains(v) }}}
+            .maxOf { (s1, s2) -> s1.pressure + s2.pressure }
+    }
+
+    fun trySolution(graph: CaveGraph, state: State, target: Valve, notVisited: Map<String, Valve>, count: Int): List<Result> {
         // new state
         val newState = openValve(graph, target, state)
-        if (newState.time == 30) return newState.pressure
+        if (newState.time == TIME) return listOf(Result(newState.pressure, HashMap(notVisited)))
 
         // new targets
         val newNotVisited = HashMap(notVisited)
@@ -46,10 +79,27 @@ class Day16Test {
 
         // no targets left, wait
         if (newNotVisited.isEmpty())
-            return newState.pressure + ((30-newState.time) * newState.pressurePerRound)
+            return listOf(Result(newState.pressure + ((TIME-newState.time) * newState.pressurePerRound), HashMap(newNotVisited)))
 
         // try all targets
-        return newNotVisited.values.maxOf { trySolution(graph, newState, it, newNotVisited, count+1) }
+        val out = newNotVisited.values
+            .flatMap { trySolution(graph, newState, it, newNotVisited, count+1).filter { it.pressure > HEURISTIC_MIN_PRESSURE && it.getVisitedSize(graph.nodes.size) > HEURISTIC_MIN_VISITED } }
+        val wait = tryWaiting(newState, newNotVisited)
+        return if (wait.pressure > HEURISTIC_MIN_PRESSURE) out + tryWaiting(newState, newNotVisited) else out
+    }
+
+    fun tryWaiting(state: State, notVisited: Map<String, Valve>): Result {
+        return Result(state.pressure + ((TIME-state.time) * state.pressurePerRound), HashMap(notVisited))
+    }
+
+    data class Result(val pressure: Int, val notVisited: HashMap<String, Valve>) {
+        fun getVisited(allNodes: Set<String>): Set<String> {
+            return allNodes - notVisited.keys - "AA"
+        }
+
+        fun getVisitedSize(allNodesSize: Int): Int {
+            return allNodesSize - notVisited.size
+        }
     }
 
     fun openValve(graph: CaveGraph, to: Valve, state: State): State {
@@ -57,8 +107,8 @@ class Day16Test {
         val steps = path.windowed(2).sumOf { (from, to) -> from.vertices.find { it.to == to.key }!!.weight }
 
         // Not enough time to reach valve and open it, just stay still
-        if (state.time + steps >= 30) {
-            return State(state.position, 30, state.pressure + ((30-state.time)*state.pressurePerRound), state.pressurePerRound)
+        if (state.time + steps >= TIME) {
+            return State(state.position, TIME, state.pressure + ((TIME-state.time)*state.pressurePerRound), state.pressurePerRound)
         }
 
         // Run to valve and open it
