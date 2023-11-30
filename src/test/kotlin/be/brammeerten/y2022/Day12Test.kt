@@ -1,5 +1,9 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.Co
+import be.brammeerten.readFile
+import be.brammeerten.toAlphabetIndex
+import be.brammeerten.toCharList
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.LinkedList
@@ -8,28 +12,28 @@ class Day12Test {
 
     @Test
     fun `part 1a`() {
-        val map = readMap("day12/exampleInput.txt")
+        val map = readMap("2022/day12/exampleInput.txt")
         val bestPath = map.solveBreadthFirst()
         Assertions.assertEquals(31, bestPath!!.size-1)
     }
 
     @Test
     fun `part 1b`() {
-        val map = readMap("day12/input.txt")
+        val map = readMap("2022/day12/input.txt")
         val bestPath = map.solveBreadthFirst()
         Assertions.assertEquals(330, bestPath!!.size-1)
     }
 
     @Test
     fun `part 2a`() {
-        val map = readMap("day12/exampleInput.txt")
+        val map = readMap("2022/day12/exampleInput.txt")
         val shortest = map.findLeastStepsFromLowestPoints()
         Assertions.assertEquals(29, shortest)
     }
 
     @Test
     fun `part 2b`() {
-        val map = readMap("day12/input.txt")
+        val map = readMap("2022/day12/input.txt")
         val shortest = map.findLeastStepsFromLowestPoints()
         Assertions.assertEquals(321, shortest)
     }

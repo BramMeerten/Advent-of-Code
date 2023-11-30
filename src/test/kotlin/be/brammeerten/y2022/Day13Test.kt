@@ -1,5 +1,7 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.readFile
+import be.brammeerten.readFileSplitted
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.math.min
@@ -8,13 +10,13 @@ class Day13Test {
 
     @Test
     fun `part 1a`() {
-        val pairs = readPairs("day13/exampleInput.txt")
+        val pairs = readPairs("2022/day13/exampleInput.txt")
         Assertions.assertEquals(13, solve(pairs))
     }
 
     @Test
     fun `part 1b`() {
-        val packets = readFile("day13/input.txt")
+        val packets = readFile("2022/day13/input.txt")
             .filter { it.isNotEmpty() }
             .map { parseList(it) }
             .toMutableList()

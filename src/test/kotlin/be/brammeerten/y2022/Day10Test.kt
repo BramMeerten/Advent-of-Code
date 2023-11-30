@@ -1,5 +1,7 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.extractRegexGroupsI
+import be.brammeerten.readFile
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -10,7 +12,7 @@ class Day10Test {
     @Test
     fun `part 1a`() {
         val cpu = Cpu()
-        val instructionSet = readInstructions("day10/exampleInputA.txt")
+        val instructionSet = readInstructions("2022/day10/exampleInputA.txt")
         cpu.exec(instructionSet)
         Assertions.assertEquals(-1, cpu.x)
     }
@@ -18,7 +20,7 @@ class Day10Test {
     @Test
     fun `part 1b`() {
         val cpu = Cpu()
-        val instructionSet = readInstructions("day10/exampleInput.txt")
+        val instructionSet = readInstructions("2022/day10/exampleInput.txt")
         cpu.exec(instructionSet)
 
         val sum = cpu.historyX.entries.sumOf { (cycle, x) -> cycle * x }
@@ -28,7 +30,7 @@ class Day10Test {
     @Test
     fun `part 1c`() {
         val cpu = Cpu()
-        val instructionSet = readInstructions("day10/input.txt")
+        val instructionSet = readInstructions("2022/day10/input.txt")
         cpu.exec(instructionSet)
 
         val sum = cpu.historyX.entries.sumOf { (cycle, x) -> cycle * x }
@@ -38,7 +40,7 @@ class Day10Test {
     @Test
     fun `part 2a`() {
         val cpu = Cpu()
-        val instructionSet = readInstructions("day10/exampleInput.txt")
+        val instructionSet = readInstructions("2022/day10/exampleInput.txt")
         cpu.exec(instructionSet)
 
         val screen = generateSequence { generateSequence { "." }.take(40).toMutableList() }.take(6).toList()
@@ -63,7 +65,7 @@ class Day10Test {
     @Test
     fun `part 2b`() {
         val cpu = Cpu()
-        val instructionSet = readInstructions("day10/input.txt")
+        val instructionSet = readInstructions("2022/day10/input.txt")
         cpu.exec(instructionSet)
 
         val screen = generateSequence { generateSequence { "." }.take(40).toMutableList() }.take(6).toList()

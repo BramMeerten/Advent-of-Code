@@ -1,5 +1,8 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.extractRegexGroups
+import be.brammeerten.extractRegexGroupsI
+import be.brammeerten.readFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import kotlin.math.max
@@ -15,25 +18,25 @@ class Day19Test {
 
     @Test
     fun `part 1a`() {
-        val bluePrints = readBlueprints("day19/exampleInput.txt")
+        val bluePrints = readBlueprints("2022/day19/exampleInput.txt")
         assertThat(getTotalQualityLevel(bluePrints)).isEqualTo(33)
     }
 
     @Test
     fun `part 1b`() {
-        val bluePrints = readBlueprints("day19/input.txt")
+        val bluePrints = readBlueprints("2022/day19/input.txt")
         assertThat(getTotalQualityLevel(bluePrints)).isEqualTo(600)
     }
 
     @Test
     fun `part 2`() {
-        val bluePrints = readBlueprints("day19/exampleInput.txt")
+        val bluePrints = readBlueprints("2022/day19/exampleInput.txt")
         assertThat(getGeodesMultiplied(bluePrints, minutes = 32)).isEqualTo(56 * 62)
     }
 
     @Test
     fun `part 2b`() {
-        val bluePrints = readBlueprints("day19/input.txt")
+        val bluePrints = readBlueprints("2022/day19/input.txt")
         assertThat(getGeodesMultiplied(bluePrints.subList(0, 3), minutes = 32)).isEqualTo(0)
     }
 
@@ -70,7 +73,8 @@ class Day19Test {
 
     fun readRobotCost(type: String, line: String): RobotCost {
         val regex = "Each $type robot costs ([^.]+)."
-        return RobotCost(extractRegexGroups(regex, line)[0].split(" and ")
+        return RobotCost(
+            extractRegexGroups(regex, line)[0].split(" and ")
             .map { cost -> extractRegexGroups("(\\d+) (.+)", cost) }
             .map { it[1] to it[0].toInt() }.toMap())
     }

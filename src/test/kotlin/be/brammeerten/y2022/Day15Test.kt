@@ -1,5 +1,8 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.C
+import be.brammeerten.extractRegexGroupsI
+import be.brammeerten.readFile
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.math.abs
@@ -10,25 +13,25 @@ class Day15Test {
 
     @Test
     fun `part 1a`() {
-        val readings = parseSensorReadings(readFile("day15/exampleInput.txt"))
+        val readings = parseSensorReadings(readFile("2022/day15/exampleInput.txt"))
         Assertions.assertEquals(26, solve(readings, 10))
     }
 
     @Test
     fun `part 1b`() {
-        val readings = parseSensorReadings(readFile("day15/input.txt"))
+        val readings = parseSensorReadings(readFile("2022/day15/input.txt"))
         Assertions.assertEquals(26, solve(readings, 2000000)) // < 4876694
     }
 
     @Test
     fun `part 2a`() {
-        val readings = parseSensorReadings(readFile("day15/exampleInput.txt"))
+        val readings = parseSensorReadings(readFile("2022/day15/exampleInput.txt"))
         Assertions.assertEquals(C(14, 11), solve2c(readings, C(0,0), C(20, 20)))
     }
 
     @Test
     fun `part 2b`() {
-        val readings = parseSensorReadings(readFile("day15/input.txt"))
+        val readings = parseSensorReadings(readFile("2022/day15/input.txt"))
         val yes = readings.all { canHavePointOutOfReach(it, C(2911363, 2855041), C(2911363, 2855041)) }
         Assertions.assertEquals(C(2911363, 2855041), solve2c(readings, C(0,0), C(4000000,4000000)))
         val result: Long = 2911363L * 4000000L + 2855041L

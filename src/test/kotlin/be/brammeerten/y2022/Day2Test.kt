@@ -1,6 +1,7 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
-import be.brammeerten.Day2Test.Shape.*
+import be.brammeerten.readFile
+import be.brammeerten.y2022.Day2Test.Shape.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -15,7 +16,7 @@ class Day2Test {
 
     @Test
     fun `part 1`() {
-        val lines = readFile("day2/exampleInput.txt")
+        val lines = readFile("2022/2022/day2/exampleInput.txt")
         val result = lines
                 .map { it.split(" ") }
                 .map { (a, b) -> mapABC(a) to mapXYZ(b) }
@@ -25,7 +26,7 @@ class Day2Test {
 
     @Test
     fun `part 2`() {
-        val lines = readFile("day2/exampleInput.txt")
+        val lines = readFile("2022/2022/day2/exampleInput.txt")
         val result = lines
                 .map { it.split(" ") }
                 .map { (a, b) -> mapABC(a) to chooseShapePart2(b, mapABC(a)) }

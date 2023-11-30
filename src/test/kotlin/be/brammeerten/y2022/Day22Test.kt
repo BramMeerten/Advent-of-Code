@@ -1,7 +1,11 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
-import be.brammeerten.Day22Test.Instruction.*
-import be.brammeerten.Day22Test.Square.*
+import be.brammeerten.C
+import be.brammeerten.C3
+import be.brammeerten.readFile
+import be.brammeerten.toCharList
+import be.brammeerten.y2022.Day22Test.Instruction.*
+import be.brammeerten.y2022.Day22Test.Square.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -9,8 +13,8 @@ class Day22Test {
 
     @Test
     fun `part 1a`() {
-        val map = readMap("day22/exampleInput.txt")
-        val instructions = readInstructions("day22/exampleInput.txt")
+        val map = readMap("2022/day22/exampleInput.txt")
+        val instructions = readInstructions("2022/day22/exampleInput.txt")
 
         instructions.forEach{map.execute(it, print = true)}
         assertThat(map.getPassword()).isEqualTo(6032)
@@ -18,8 +22,8 @@ class Day22Test {
 
     @Test
     fun `part 1b`() {
-        val map = readMap("day22/input.txt")
-        val instructions = readInstructions("day22/input.txt")
+        val map = readMap("2022/day22/input.txt")
+        val instructions = readInstructions("2022/day22/input.txt")
 
         instructions.forEach{map.execute(it)}
         assertThat(map.getPassword()).isEqualTo(55244)
@@ -27,8 +31,8 @@ class Day22Test {
 
     @Test
     fun `part 2a`() {
-        val map = read3DMap("day22/exampleInput.txt", 3)
-        val instructions = readInstructions("day22/exampleInput.txt")
+        val map = read3DMap("2022/day22/exampleInput.txt", 3)
+        val instructions = readInstructions("2022/day22/exampleInput.txt")
 
         instructions.forEach{map.execute(it)}
         assertThat(map.pos).isEqualTo(C3(0, 1, 3))
@@ -36,8 +40,8 @@ class Day22Test {
 
     @Test
     fun `part 2b`() {
-        val map = read3DMap("day22/input.txt", 4)
-        val instructions = readInstructions("day22/input.txt")
+        val map = read3DMap("2022/day22/input.txt", 4)
+        val instructions = readInstructions("2022/day22/input.txt")
 
         instructions.forEach{map.execute(it)}
         assertThat(map.pos).isEqualTo(C3(0, 37, 28)) // --> x=36, y=122 --> (123*1000)+(37*4)+1
@@ -184,44 +188,44 @@ class Day22Test {
                 arrayOf(
                     { c: C -> null},
                     { c: C -> null},
-                    { c: C -> C3(c.x + 1, 0, c.y + 1)},
+                    { c: C -> C3(c.x + 1, 0, c.y + 1) },
                     { c: C -> null},
                 ),
                 arrayOf(
-                    { c: C -> C3(n-1 + 1 -c.x, c.y  + 1, 0)},
-                    { c: C -> C3(0, c.y + 1, c.x + 1)},
-                    { c: C -> C3(c.x +1, c.y +1, n-1 +2)},
+                    { c: C -> C3(n-1 + 1 -c.x, c.y  + 1, 0) },
+                    { c: C -> C3(0, c.y + 1, c.x + 1) },
+                    { c: C -> C3(c.x +1, c.y +1, n-1 +2) },
                     { c: C -> null},
                 ),
                 arrayOf(
                     { c: C -> null},
                     { c: C -> null},
-                    { c: C -> C3(c.x +1, n-1 +2, n-1 -c.y +1)},
-                    { c: C -> C3(n-1 +2, n-1 -c.x +1, n-1 -c.y +1)}
+                    { c: C -> C3(c.x +1, n-1 +2, n-1 -c.y +1) },
+                    { c: C -> C3(n-1 +2, n-1 -c.x +1, n-1 -c.y +1) }
                 )
             )
 
             fun getConversionMatrix2(n: Int) = arrayOf(
                 arrayOf(
                     { c: C -> null},
-                    { c: C -> C3(c.x +1, 0, c.y +1)},
-                    { c: C -> C3(n-1+2, c.x +1, c.y +1)},
+                    { c: C -> C3(c.x +1, 0, c.y +1) },
+                    { c: C -> C3(n-1+2, c.x +1, c.y +1) },
                     { c: C -> null},
                 ),
                 arrayOf(
                     { c: C -> null},
-                    { c: C -> C3(c.x +1, c.y +1, n-1+2)},
+                    { c: C -> C3(c.x +1, c.y +1, n-1+2) },
                     { c: C -> null},
                     { c: C -> null},
                 ),
                 arrayOf(
-                    { c: C -> C3(0, c.x +1, n-1 -c.y +1)},
-                    { c: C -> C3(c.x +1, n-1+2, n-1 -c.y +1)},
+                    { c: C -> C3(0, c.x +1, n-1 -c.y +1) },
+                    { c: C -> C3(c.x +1, n-1+2, n-1 -c.y +1) },
                     { c: C -> null},
                     { c: C -> null},
                 ),
                 arrayOf(
-                    { c: C -> C3(c.y +1, c.x +1, 0)},
+                    { c: C -> C3(c.y +1, c.x +1, 0) },
                     { c: C -> null},
                     { c: C -> null},
                     { c: C -> null},

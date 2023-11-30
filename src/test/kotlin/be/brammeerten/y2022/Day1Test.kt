@@ -1,5 +1,6 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.readFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -8,7 +9,7 @@ class Day1Test {
 
     @Test
     fun `part 1`() {
-        val lines = readFile("day1/exampleInput.txt");
+        val lines = readFile("2022/day1/exampleInput.txt");
         val result = lines
                 .fold(mutableListOf(mutableListOf<String>())) { acc, value ->
                     if (value.isBlank()) acc += mutableListOf<String>() else acc.last() += value
@@ -20,7 +21,7 @@ class Day1Test {
 
     @Test
     fun `part 2`() {
-        val lines = readFile("day1/exampleInput.txt");
+        val lines = readFile("2022/day1/exampleInput.txt");
         val result = lines
                 .fold(mutableListOf(mutableListOf<String>())) { acc, value ->
                     if (value.isBlank()) acc += mutableListOf<String>() else acc.last() += value

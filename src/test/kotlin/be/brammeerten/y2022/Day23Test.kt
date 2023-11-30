@@ -1,6 +1,8 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
-import com.sun.org.apache.xpath.internal.operations.Bool
+import be.brammeerten.C
+import be.brammeerten.readFile
+import be.brammeerten.toCharList
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -8,32 +10,33 @@ class Day23Test {
 
     @Test
     fun `part 1a`() {
-        val map = readMap("day23/exampleInput.txt")
+        val map = readMap("2022/day23/exampleInput.txt")
         map.doRounds(10, print = true)
         assertThat(map.countEmptyTiles()).isEqualTo(110)
     }
 
     @Test
     fun `part 1b`() {
-        val map = readMap("day23/input.txt")
+        val map = readMap("2022/day23/input.txt")
         map.doRounds(10)
         assertThat(map.countEmptyTiles()).isEqualTo(4208)
     }
 
     @Test
     fun `part 2a`() {
-        val map = readMap("day23/exampleInput.txt")
+        val map = readMap("2022/day23/exampleInput.txt")
         assertThat(map.findRoundNoMovement()).isEqualTo(20)
     }
 
     @Test
     fun `part 2b`() {
-        val map = readMap("day23/input.txt")
+        val map = readMap("2022/day23/input.txt")
         assertThat(map.findRoundNoMovement()).isEqualTo(1016)
     }
 
     fun readMap(file: String): MMap {
-        return MMap(readFile(file)
+        return MMap(
+            readFile(file)
             .flatMapIndexed { y, row -> row.toCharList()
                 .mapIndexed{x, value -> C(x, y) to value }
                 .filter{it.second == '#'}
@@ -42,8 +45,8 @@ class Day23Test {
     }
 
     class MMap(var map: Set<Elf>) {
-        var min: C = map.reduce{a, b -> a.min(b)}
-        var max: C = map.reduce{a, b -> a.max(b)}
+        var min: C = map.reduce{ a, b -> a.min(b)}
+        var max: C = map.reduce{ a, b -> a.max(b)}
         val POSITIONS = (-1..1).flatMap { y -> (-1..1).map { x -> C(x,y) } }.filter { it != C(0, 0) }
         val directions: ArrayList<Pair<C, List<C>>> = arrayListOf(
             C(0, -1) to listOf(C(-1, -1), C(0, -1), C(1, -1)),

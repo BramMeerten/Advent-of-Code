@@ -1,4 +1,4 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -9,7 +9,7 @@ class Day4Test {
 
     @Test
     fun `part 1`() {
-        val result = readFile("day4/exampleInput.txt")
+        val result = readFile("2022/day4/exampleInput.txt")
                 .map { l -> l.split(",") }
                 .map { pair -> pair
                         .map { it.split("-") }
@@ -21,7 +21,7 @@ class Day4Test {
 
     @Test
     fun `part 2`() {
-        val result = readFile("day4/exampleInput.txt")
+        val result = readFile("2022/day4/exampleInput.txt")
                 .map { l -> l.split(",") }
                 .map { pair -> pair
                         .map { it.split("-") }

@@ -1,5 +1,6 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.readFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -7,7 +8,7 @@ class Day20Test {
 
     @Test
     fun `part 1a`() {
-        val coordinates = readInput("day20/exampleInput.txt")
+        val coordinates = readInput("2022/day20/exampleInput.txt")
         val mix = mix(coordinates.mapIndexed { i, c -> i to c })
         assertThat(mix.map { it.second }).isEqualTo(listOf(1L, 2L, -3L, 4L, 0L, 3L, -2L))
 
@@ -19,14 +20,14 @@ class Day20Test {
 
     @Test
     fun `part 1b`() {
-        val coordinates = readInput("day20/input.txt")
+        val coordinates = readInput("2022/day20/input.txt")
         val mix = mix(coordinates.mapIndexed { i, c -> i to c })
         assertThat(get(mix, 1000) + get(mix, 2000) + get(mix, 3000)).isEqualTo(7153L)
     }
 
     @Test
     fun `part 2`() {
-        val coordinates = readInput("day20/exampleInput.txt")
+        val coordinates = readInput("2022/day20/exampleInput.txt")
             .map { it * 811589153L }
         val input = coordinates.mapIndexed { i, c -> i to c }
         var mix = mix(input)

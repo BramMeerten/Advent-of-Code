@@ -1,6 +1,8 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
-import be.brammeerten.Tile.*
+import be.brammeerten.Co
+import be.brammeerten.readFile
+import be.brammeerten.y2022.Tile.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.math.max
@@ -10,28 +12,28 @@ class Day14Test {
 
     @Test
     fun `part 1a`() {
-        val map = Cave(scanCave("day14/exampleInput.txt"))
+        val map = Cave(scanCave("2022/day14/exampleInput.txt"))
         simulate(map, print = true)
         Assertions.assertEquals(24, map.sandCount())
     }
 
     @Test
     fun `part 1b`() {
-        val map = Cave(scanCave("day14/input.txt"))
+        val map = Cave(scanCave("2022/day14/input.txt"))
         simulate(map)
         Assertions.assertEquals(592, map.sandCount())
     }
 
     @Test
     fun `part 2a`() {
-        val map = Cave(scanCave("day14/exampleInput.txt"), infiniteFloor = true)
+        val map = Cave(scanCave("2022/day14/exampleInput.txt"), infiniteFloor = true)
         simulate(map, print = true)
         Assertions.assertEquals(93, map.sandCount())
     }
 
     @Test
     fun `part 2b`() {
-        val map = Cave(scanCave("day14/input.txt"), infiniteFloor = true)
+        val map = Cave(scanCave("2022/day14/input.txt"), infiniteFloor = true)
         simulate(map)
         Assertions.assertEquals(30367, map.sandCount())
     }

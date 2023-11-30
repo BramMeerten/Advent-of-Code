@@ -1,5 +1,7 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.C3
+import be.brammeerten.readFile
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -7,30 +9,31 @@ class Day18Test {
 
     @Test
     fun `part 1a`() {
-        val droplet = parseDroplet("day18/exampleInput.txt")
+        val droplet = parseDroplet("2022/day18/exampleInput.txt")
         Assertions.assertEquals(64, droplet.countSurface())
     }
 
     @Test
     fun `part 1b`() {
-        val droplet = parseDroplet("day18/input.txt")
+        val droplet = parseDroplet("2022/day18/input.txt")
         Assertions.assertEquals(4340, droplet.countSurface())
     }
 
     @Test
     fun `part 2a`() {
-        val droplet = parseDroplet("day18/exampleInput.txt")
+        val droplet = parseDroplet("2022/day18/exampleInput.txt")
         Assertions.assertEquals(58, droplet.countExteriorSurface())
     }
 
     @Test
     fun `part 2b`() {
-        val droplet = parseDroplet("day18/input.txt")
+        val droplet = parseDroplet("2022/day18/input.txt")
         Assertions.assertEquals(2468, droplet.countExteriorSurface())
     }
 
     fun parseDroplet(file: String): Droplet {
-        return Droplet(readFile(file)
+        return Droplet(
+            readFile(file)
             .map { it.split(",").map { c -> c.toInt() } }
             .map { (x, y, z) -> C3(x, y, z) })
     }

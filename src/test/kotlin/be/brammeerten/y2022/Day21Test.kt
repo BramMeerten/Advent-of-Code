@@ -1,6 +1,8 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
-import be.brammeerten.Day21Test.MonkeyOperation.*
+import be.brammeerten.extractRegexGroups
+import be.brammeerten.readFile
+import be.brammeerten.y2022.Day21Test.MonkeyOperation.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -8,25 +10,25 @@ class Day21Test {
 
     @Test
     fun `part 1a`() {
-        val monkeys = readInput("day21/exampleInput.txt")
+        val monkeys = readInput("2022/day21/exampleInput.txt")
         assertThat(getSolutions(monkeys)["root"]).isEqualTo(152L)
     }
 
     @Test
     fun `part 1b`() {
-        val monkeys = readInput("day21/input.txt")
+        val monkeys = readInput("2022/day21/input.txt")
         assertThat(getSolutions(monkeys)["root"]).isEqualTo(364367103397416)
     }
 
     @Test
     fun `part 2a`() {
-        val monkeys = readInput("day21/exampleInput.txt").filter { it.name != "humn" }
+        val monkeys = readInput("2022/day21/exampleInput.txt").filter { it.name != "humn" }
         assertThat(findHumanValue(monkeys)).isEqualTo(301)
     }
 
     @Test
     fun `part 2b`() {
-        val monkeys = readInput("day21/input.txt").filter { it.name != "humn" }
+        val monkeys = readInput("2022/day21/input.txt").filter { it.name != "humn" }
         assertThat(findHumanValue(monkeys)).isEqualTo(3782852515583)
     }
 

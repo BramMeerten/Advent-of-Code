@@ -1,9 +1,11 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.extractRegexGroups
 import be.brammeerten.graphs.Dijkstra
 import be.brammeerten.graphs.Graph
 import be.brammeerten.graphs.Node
 import be.brammeerten.graphs.Vertex
+import be.brammeerten.readFile
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -17,13 +19,13 @@ class Day16Test {
 
     @Test
     fun `part 1a`() {
-        val graph = readGraph(readFile("day16/exampleInput.txt"))
+        val graph = readGraph(readFile("2022/day16/exampleInput.txt"))
         Assertions.assertEquals(1651, solve(graph))
     }
 
     @Test
     fun `part 1b`() {
-        val graph = readGraph(readFile("day16/input.txt"))
+        val graph = readGraph(readFile("2022/day16/input.txt"))
         val solved = solve(graph)
         Assertions.assertEquals(1647, solved)
     }
@@ -31,7 +33,7 @@ class Day16Test {
     @Test
     fun `part 2a`() {
         TIME = 26
-        val graph = readGraph(readFile("day16/exampleInput.txt"))
+        val graph = readGraph(readFile("2022/day16/exampleInput.txt"))
         Assertions.assertEquals(1707, solveWithElephant(graph))
     }
 
@@ -40,7 +42,7 @@ class Day16Test {
         TIME = 26
         HEURISTIC_MIN_VISITED = 6
         HEURISTIC_MIN_PRESSURE = 600
-        val graph = readGraph(readFile("day16/input.txt"))
+        val graph = readGraph(readFile("2022/day16/input.txt"))
         Assertions.assertEquals(2169, solveWithElephant(graph))
     }
 

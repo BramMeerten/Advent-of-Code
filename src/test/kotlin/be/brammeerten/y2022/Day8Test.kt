@@ -1,5 +1,6 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.readFile
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -7,13 +8,13 @@ class Day8Test {
 
     @Test
     fun `part 1`() {
-        val forest = toMap(readFile("day8/exampleInput.txt"))
+        val forest = toMap(readFile("2022/day8/exampleInput.txt"))
         Assertions.assertEquals(21, forest.getVisibleTrees().size)
     }
 
     @Test
     fun `part 2`() {
-        val forest = toMap(readFile("day8/exampleInput.txt"))
+        val forest = toMap(readFile("2022/day8/exampleInput.txt"))
         Assertions.assertEquals(4, forest.getScenicScore(2, 1))
         Assertions.assertEquals(8, forest.getScenicScore(2, 3))
         Assertions.assertEquals(8, forest.getBestScenicScore())

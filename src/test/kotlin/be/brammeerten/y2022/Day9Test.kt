@@ -1,5 +1,9 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.Co
+import be.brammeerten.extractRegexGroups
+import be.brammeerten.readFile
+import be.brammeerten.toCharList
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.math.abs
@@ -9,25 +13,25 @@ class Day9Test {
 
     @Test
     fun `part 1`() {
-        val result = solve("day9/exampleInput.txt", 2, print = true)
+        val result = solve("2022/day9/exampleInput.txt", 2, print = true)
         Assertions.assertEquals(13, result)
     }
 
     @Test
     fun `part 1b`() {
-        val result = solve("day9/input.txt", 2)
+        val result = solve("2022/day9/input.txt", 2)
         Assertions.assertEquals(5883, result)
     }
 
     @Test
     fun `part 2`() {
-        val result = solve("day9/exampleInput2.txt", 10)
+        val result = solve("2022/day9/exampleInput2.txt", 10)
         Assertions.assertEquals(36, result)
     }
 
     @Test
     fun `part 2b`() {
-        val result = solve("day9/input.txt", 10)
+        val result = solve("2022/day9/input.txt", 10)
         Assertions.assertEquals(2367, result)
     }
 

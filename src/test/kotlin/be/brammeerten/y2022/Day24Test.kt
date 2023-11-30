@@ -1,5 +1,9 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.C
+import be.brammeerten.gcd
+import be.brammeerten.readFile
+import be.brammeerten.toCharList
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -10,25 +14,25 @@ class Day24Test {
 
     @Test
     fun `part 1a`() {
-        val valley = readValley("day24/exampleInput.txt")
+        val valley = readValley("2022/day24/exampleInput.txt")
         Assertions.assertThat(solve(valley, start = C(0, -1), stop = C(5, 4))).isEqualTo(18)
     }
 
     @Test
     fun `part 1b`() {
-        val valley = readValley("day24/input.txt")
+        val valley = readValley("2022/day24/input.txt")
         Assertions.assertThat(solve(valley, start = C(0, -1), stop = C(99, 35))).isEqualTo(230)
     }
 
     @Test
     fun `part 2a`() {
-        val valley = readValley("day24/exampleInput.txt")
+        val valley = readValley("2022/day24/exampleInput.txt")
         Assertions.assertThat(solveThereAndBackAgainAndBackAgain(valley, start = C(0, -1), stop = C(5, 4))).isEqualTo(54)
     }
 
     @Test
     fun `part 2b`() {
-        val valley = readValley("day24/input.txt")
+        val valley = readValley("2022/day24/input.txt")
         Assertions.assertThat(solveThereAndBackAgainAndBackAgain(valley, start = C(0, -1), stop = C(99, 35))).isEqualTo(713)
     }
 

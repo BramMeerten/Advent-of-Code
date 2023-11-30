@@ -1,5 +1,6 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.readFile
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -8,7 +9,7 @@ class Day3Test {
 
     @Test
     fun `part 1`() {
-        val result = readFile("day3/exampleInput.txt")
+        val result = readFile("2022/day3/exampleInput.txt")
                 .map { l -> l.substring(0, l.length / 2) to l.substring(l.length / 2) }
                 .flatMap { (c1, c2) -> c1.toCharArray().filter { c2.contains(it) }.toSet() }
                 .sumOf { toScore(it) }
@@ -18,7 +19,7 @@ class Day3Test {
 
     @Test
     fun `part 2`() {
-        val result = readFile("day3/exampleInput.txt")
+        val result = readFile("2022/day3/exampleInput.txt")
                 .windowed(3, 3)
                 .flatMap {(r1, r2, r3) -> r1.toCharArray().filter{r2.contains(it) && r3.contains(it)}.toSet() }
                 .sumOf { toScore(it) }

@@ -1,5 +1,6 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.readFile
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.*
@@ -8,7 +9,7 @@ class Day5Test {
 
     @Test
     fun `part 1`() {
-        val input = readFile("day5/exampleInput.txt")
+        val input = readFile("2022/day5/exampleInput.txt")
         val stacks = readStacks(input)
         val moves = readMoves(input)
 
@@ -19,7 +20,7 @@ class Day5Test {
 
     @Test
     fun `part 2`() {
-        val input = readFile("day5/exampleInput.txt")
+        val input = readFile("2022/day5/exampleInput.txt")
         val stacks = readStacks(input)
         val moves = readMoves(input)
 

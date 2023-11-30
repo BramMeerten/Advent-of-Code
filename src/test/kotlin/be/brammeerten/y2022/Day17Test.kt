@@ -1,5 +1,8 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.C
+import be.brammeerten.readSingleLine
+import be.brammeerten.toCharList
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.math.max
@@ -12,25 +15,25 @@ class Day17Test {
 
     @Test
     fun `part 1a`() {
-        val pattern = readJetPattern(readSingleLine("day17/exampleInput.txt"))
+        val pattern = readJetPattern(readSingleLine("2022/day17/exampleInput.txt"))
         Assertions.assertEquals(3068, simulate(2022, chamberWidth = 7, pattern))
     }
 
     @Test
     fun `part 1b`() {
-        val pattern = readJetPattern(readSingleLine("day17/input.txt"))
+        val pattern = readJetPattern(readSingleLine("2022/day17/input.txt"))
         Assertions.assertEquals(3224, simulate(2022, chamberWidth = 7, pattern))
     }
 
     @Test
     fun `part 2a`() {
-        val pattern = readJetPattern(readSingleLine("day17/exampleInput.txt"))
+        val pattern = readJetPattern(readSingleLine("2022/day17/exampleInput.txt"))
         Assertions.assertEquals(1514285714288L, simulate(1000000000000L, chamberWidth = 7, pattern))
     }
 
     @Test
     fun `part 2b`() {
-        val pattern = readJetPattern(readSingleLine("day17/input.txt"))
+        val pattern = readJetPattern(readSingleLine("2022/day17/input.txt"))
         Assertions.assertEquals(1595988538691, simulate(1000000000000L, chamberWidth = 7, pattern)) // < 1600571428577
     }
 

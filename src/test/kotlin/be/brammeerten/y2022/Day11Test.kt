@@ -1,5 +1,7 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.extractRegexGroups
+import be.brammeerten.readFileSplitted
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -13,7 +15,7 @@ class Day11Test {
 
     @Test
     fun `part 1`() {
-        val monkeys = parseMonkeys("day11/input.txt")
+        val monkeys = parseMonkeys("2022/day11/input.txt")
         for (round in (1..20))
             doRound(monkeys, relieve = true)
 
@@ -23,7 +25,7 @@ class Day11Test {
 
     @Test
     fun `part 2`() {
-        val monkeys = parseMonkeys("day11/input.txt")
+        val monkeys = parseMonkeys("2022/day11/input.txt")
         for (round in (1..10000))
             doRound(monkeys)
 

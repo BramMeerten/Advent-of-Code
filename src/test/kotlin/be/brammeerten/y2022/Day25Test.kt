@@ -1,6 +1,6 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
-import org.assertj.core.api.Assertions
+import be.brammeerten.readFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -35,7 +35,7 @@ class Day25Test {
 
     @Test
     fun `part 1a`() {
-        val result = readFile("day25/exampleInput.txt")
+        val result = readFile("2022/day25/exampleInput.txt")
             .map { Num(it) }
             .reduce { a, b -> a + b }
         assertThat(result).isEqualTo(Num("2=-1=0"))
@@ -43,7 +43,7 @@ class Day25Test {
 
     @Test
     fun `part 1b`() {
-        val result = readFile("day25/input.txt")
+        val result = readFile("2022/day25/input.txt")
             .map { Num(it) }
             .reduce { a, b -> a + b }
         assertThat(result).isEqualTo(Num("2=020-===0-1===2=020"))

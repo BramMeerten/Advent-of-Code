@@ -1,5 +1,6 @@
-package be.brammeerten
+package be.brammeerten.y2022
 
+import be.brammeerten.readFile
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import kotlin.math.min
@@ -8,13 +9,13 @@ class Day7Test {
 
     @Test
     fun `part 1`() {
-        val root1 = readDirectory("day7/exampleInput.txt")
+        val root1 = readDirectory("2022/day7/exampleInput.txt")
         Assertions.assertEquals(95437, root1.getLimitedSize(100000))
     }
 
     @Test
     fun `part 2`() {
-        val root = readDirectory("day7/exampleInput.txt")
+        val root = readDirectory("2022/day7/exampleInput.txt")
         val extraSpaceNeeded = 30000000 - (70000000 - root.totalSize())
         Assertions.assertEquals(24933642, root.findSmallestDirectoryWithMinimumSpace(extraSpaceNeeded))
     }
