@@ -10,26 +10,17 @@ class Day1Test {
     @Test
     fun `part 1`() {
         val lines = readFile("2023/day1/exampleInput.txt");
-        var l2 = lines.map { line ->
-            String(line.toCharArray().filter { char ->
-                var ok = true
-                try {
-                    Integer.parseInt(char + "");
-                } catch (e: Exception) {
-                    ok = false
-                }
-                ok
-            }.toCharArray())
-        }.map { line ->
-            Integer.parseInt(line.first() + "" + line.last())
-        }.sum()
+        val sum = lines
+            .map { line -> line.toCharArray().filter { it.isDigit() } }
+            .sumOf { Integer.parseInt(it.first() + "" + it.last()) }
 
-        assertThat(l2).isEqualTo(142);
-//        assertThat(l2).isEqualTo(55130);
+        assertThat(sum).isEqualTo(142);
+        // assertThat(sum).isEqualTo(55130);
     }
 
     @Test
     fun `part 2`() {
+        val lines = readFile("2023/day1/exampleInput2.txt");
         val map: Map<String, Int> = mapOf(
             "one" to 1,
             "two" to 2,
@@ -41,51 +32,35 @@ class Day1Test {
             "eight" to 8,
             "nine" to 9,
         )
-        println(map)
-        val lines = readFile("2023/day1/exampleInput2.txt");
-        var l2 = lines
-            .map { line ->
-                var first = -1
-                for (i in line.indices) {
-                    val sub = line.substring(i)
-                    for (key in map.keys) {
-                        if (first == -1 && sub.startsWith(key)) {
-                            first = map[key]!!
-                            break;
-                        }
-                    }
 
-                    if (first != -1) break;
-                    try {
-                        first = Integer.parseInt(sub[0] + "")
-                    } catch (e: Exception) {}
+        val sum = lines.sumOf { line ->
+            var first: Int? = null
+            for (i in line.indices) {
+                val sub = line.substring(i)
+                first = map.entries
+                    .find { sub.startsWith(it.key) }
+                    ?.value
+                    ?: if (sub[0].isDigit()) Integer.parseInt(sub[0] + "") else null;
 
-                    if (first != -1) break;
-                }
+                if (first != null) break;
+            }
 
-                var last = -1
-                for (i in line.indices) {
-                    val sub = line.substring(0, line.length-i)
-                    for (key in map.keys) {
-                        if (last == -1 && sub.endsWith(key)) {
-                            last = map[key]!!
-                            break;
-                        }
-                    }
+            var last: Int? = null
+            for (i in line.indices) {
+                val sub = line.substring(0, line.length - i)
+                last = map.entries
+                    .find { sub.endsWith(it.key) }
+                    ?.value
+                    ?: if (sub.last().isDigit()) Integer.parseInt(sub.last() + "") else null;
 
-                    if (last != -1) break;
-                    try {
-                        last = Integer.parseInt(sub.last() + "")
-                    } catch (e: Exception) {}
+                if (last != null) break;
+            }
 
-                    if (last != -1) break;
-                }
+            (first!! * 10) + last!!;
+        }
 
-                (first*10) + last;
-            }.sum()
-
-        assertThat(l2).isEqualTo(281);
-//        assertThat(l2).isEqualTo(54985);
+        assertThat(sum).isEqualTo(281);
+//        assertThat(sum).isEqualTo(54985);
     }
 
 
