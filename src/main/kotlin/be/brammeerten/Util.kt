@@ -31,6 +31,8 @@ fun extractRegexGroupsI(regex: String, text: String) =
 
 fun String.toCharList() = this.toCharArray().toList()
 
+fun num(string: String) = Integer.parseInt(string)
+
 data class Co(val row: Int, val col: Int) {
 
         operator fun plus(co: Co): Co {
