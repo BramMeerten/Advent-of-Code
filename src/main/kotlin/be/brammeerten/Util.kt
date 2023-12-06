@@ -29,6 +29,9 @@ fun extractRegexGroups(regex: String, text: String): List<String> {
 fun extractRegexGroupsI(regex: String, text: String) =
         extractRegexGroups(regex, text).map { it.toInt() }
 
+fun extractRegexGroupsL(regex: String, text: String) =
+        extractRegexGroups(regex, text).map { it.toLong() }
+
 fun String.toCharList() = this.toCharArray().toList()
 
 fun num(string: String) = Integer.parseInt(string)
