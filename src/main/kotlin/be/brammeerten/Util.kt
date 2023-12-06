@@ -1,5 +1,11 @@
 package be.brammeerten
 
+import java.util.regex.Pattern
+import kotlin.math.min
+
+/*
+ * READ FILE CONTENTS
+ */
 fun readFile(file: String) =
         {}::class.java.classLoader.getResourceAsStream(file)
                 ?.reader()
@@ -21,6 +27,9 @@ fun readAllText(file: String) =
                 ?.reader()
                 ?.readText()!!
 
+/*
+ * REGEX STUFF
+ */
 fun extractRegexGroups(regex: String, text: String): List<String> {
         val matches = Regex(regex).find(text)
         return matches?.groupValues?.drop(1) ?: throw IllegalStateException("Line does not match regex: $text")
@@ -32,10 +41,45 @@ fun extractRegexGroupsI(regex: String, text: String) =
 fun extractRegexGroupsL(regex: String, text: String) =
         extractRegexGroups(regex, text).map { it.toLong() }
 
+fun String.extractMatches(regex: String): List<String> {
+        val matcher = Pattern.compile(regex).matcher(this);
+        val result = mutableListOf<String>()
+
+        while (matcher.find()) {
+                result.add(matcher.group())
+        }
+
+        return result
+}
+
+fun String.extractMatchesI(regex: String): List<Int> {
+        val matcher = Pattern.compile(regex).matcher(this);
+        val result = mutableListOf<Int>()
+
+        while (matcher.find()) {
+                result.add(matcher.group().toInt())
+        }
+
+        return result
+}
+
+/*
+ * String Utils
+ */
 fun String.toCharList() = this.toCharArray().toList()
 
-fun num(string: String) = Integer.parseInt(string)
+fun Char.toAlphabetIndex(): Int {
+        if (this in 'a'..'z')
+                return this.toByte().toInt() - 'a'.toByte().toInt()
+        else if (this in 'A' .. 'Z')
+                return this.toByte().toInt() - 'A'.toByte().toInt()
+        else
+                throw IllegalStateException("Not an alphabetic character: '$this'")
+}
 
+/*
+ * COORDINATES
+ */
 data class Co(val row: Int, val col: Int) {
 
         operator fun plus(co: Co): Co {
@@ -121,15 +165,39 @@ data class C3(val x: Int, val y: Int, val z: Int) {
         }
 }
 
-fun Char.toAlphabetIndex(): Int {
-        if (this in 'a'..'z')
-                return this.toByte().toInt() - 'a'.toByte().toInt()
-        else if (this in 'A' .. 'Z')
-                return this.toByte().toInt() - 'A'.toByte().toInt()
-        else
-                throw IllegalStateException("Not an alphabetic character: '$this'")
+/*
+ * RANGES
+ */
+fun rangeOverlap(range1: LongRange, range2: LongRange): RangeOverlap {
+        var contains: LongRange? = null
+        if (range1.contains(range2.first)) {
+                contains = range2.first..min(range1.last, range2.last)
+        } else if (range1.contains(range2.last)) {
+                contains = range1.first..min(range1.last, range2.last)
+        } else if (range2.contains(range1.first) && range2.contains(range1.last)) {
+                contains = range1
+        }
+
+        if (contains != null) {
+                val remainderRange1 = mutableListOf<LongRange>()
+                val remainderRange2 = mutableListOf<LongRange>()
+                if (range2.first < contains.first) remainderRange2.add(range2.first until contains.first)
+                if (contains.last < range2.last) remainderRange2.add(contains.last + 1..range2.last)
+
+                if (range1.first < contains.first) remainderRange1.add(range1.first until contains.first)
+                if (contains.last < range1.last) remainderRange1.add(contains.last + 1..range1.last)
+
+                return RangeOverlap(contains, remainderRange1, remainderRange2)
+        } else {
+                return RangeOverlap(null, listOf(range1), listOf(range2))
+        }
 }
 
+data class RangeOverlap(val overlap: LongRange?, val remaindersRange1: List<LongRange>, val remaindersRange2: List<LongRange>)
+
+/*
+ * OTHER
+ */
 fun gcd(a: Int, b: Int): Int {
     var aa = a
     var bb = b

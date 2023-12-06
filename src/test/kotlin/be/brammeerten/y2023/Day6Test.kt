@@ -1,9 +1,10 @@
 package be.brammeerten.y2023
 
+import be.brammeerten.extractMatches
+import be.brammeerten.extractMatchesI
 import be.brammeerten.readFile
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.util.regex.Pattern
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.sqrt
@@ -14,8 +15,8 @@ class Day6Test {
     @Test
     fun `part 1`() {
         val lines = readFile("2023/day6/exampleInput.txt");
-        val times = doRegexI("([0-9]+)", lines[0])
-        val distances = doRegexI("([0-9]+)", lines[1])
+        val times = lines[0].extractMatchesI("([0-9]+)")
+        val distances = lines[1].extractMatchesI("([0-9]+)")
         val games = times.zip(distances)
 
         val result = games.map { game ->
@@ -31,8 +32,8 @@ class Day6Test {
     @Test
     fun `part 2`() {
         val lines = readFile("2023/day6/exampleInput.txt");
-        val time = doRegex("([0-9]+)", lines[0]).joinToString("").toLong()
-        val dist = doRegex("([0-9]+)", lines[1]).joinToString("").toLong()
+        val time = lines[0].extractMatches("([0-9]+)").joinToString("").toLong()
+        val dist = lines[1].extractMatches("([0-9]+)").joinToString("").toLong()
 
         // dist = (time - x) * x
         // -x^2 + time*x -dist = 0
@@ -42,31 +43,6 @@ class Day6Test {
 
         assertThat(max - min +1).isEqualTo(71503);
 //        assertThat(max - min +1).isEqualTo(34934171);
-    }
-
-
-    fun doRegexI(regex: String, text: String): List<Int> {
-        val r = Pattern.compile(regex);
-        val matcher = r.matcher(text);
-        val result = mutableListOf<Int>()
-
-        while (matcher.find()) {
-            result.add(matcher.group().toInt())
-        }
-
-        return result
-    }
-
-    fun doRegex(regex: String, text: String): List<String> {
-        val r = Pattern.compile(regex);
-        val matcher = r.matcher(text);
-        val result = mutableListOf<String>()
-
-        while (matcher.find()) {
-            result.add(matcher.group())
-        }
-
-        return result
     }
 
 }
