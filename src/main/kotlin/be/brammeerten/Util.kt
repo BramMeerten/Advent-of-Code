@@ -11,6 +11,9 @@ fun readFile(file: String) =
                 ?.reader()
                 ?.readLines()!!
 
+fun readFileAndSplitLines(file: String, splitChar: String) =
+        readFile(file).map { it.split(splitChar) }
+
 fun readSingleLine(file: String): String {
         val lines = readFile(file)
         if (lines.size != 1)
