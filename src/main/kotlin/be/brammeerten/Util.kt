@@ -132,6 +132,34 @@ data class C(val x: Int, val y: Int) {
                 @JvmField val DOWN = C(0, 1)
                 @JvmField val RIGHT = C(1, 0)
                 @JvmField val LEFT = C(-1, 0)
+                @JvmField val DIRECTIONS = listOf<C>(UP, DOWN, RIGHT, LEFT)
+        }
+}
+
+data class CL(val x: Long, val y: Long) {
+
+        operator fun plus(co: CL): CL {
+                return CL(x + co.x, y + co.y)
+        }
+
+        operator fun minus(co: CL): CL {
+                return CL(x - co.x, y - co.y)
+        }
+
+        fun min(vararg cos: CL): CL {
+                return cos.fold(this) {acc, co -> CL(Math.min(acc.x, co.x), Math.min(acc.y, co.y))}
+        }
+
+        fun max(vararg cos: CL): CL {
+                return cos.fold(this) {acc, co -> CL(Math.max(acc.x, co.x), Math.max(acc.y, co.y))}
+        }
+
+        companion object {
+                @JvmField val UP = CL(0, -1)
+                @JvmField val DOWN = CL(0, 1)
+                @JvmField val RIGHT = CL(1, 0)
+                @JvmField val LEFT = CL(-1, 0)
+                @JvmField val DIRECTIONS = listOf<CL>(UP, DOWN, RIGHT, LEFT)
         }
 }
 

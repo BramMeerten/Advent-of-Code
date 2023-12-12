@@ -129,27 +129,22 @@ fun calcStrength2(cards: List<Char>): Int {
         if (c + 1 > max) max = c + 1
     }
 
-    if ((max + jokers) >= 4)
+    if ((max + jokers) >= 4) // five or four of a kind
         return (max + jokers) + 1
+
     if ((max + jokers) == 3) {
         if (jokers >= 2) return 3 // three of a kind, not full house, otherwise would have had 4 of a kind
         if (jokers == 1) {
-            return if (counts.values.count { it == 2 } == 2)
-                4 // full house
-            else
-                3
+            return if (counts.values.count { it == 2 } == 2) 4 /* full house */ else 3 /* three of a kind */
         }
-        if (counts.values.contains(2))
-            return 4 // full house
-        else
-            return 3
+        return if (counts.values.contains(2)) 4 /* full house */ else 3 /* three of a kind */
     }
-    if (jokers > 1) throw java.lang.RuntimeException("TOO MANY JOKERS?")
+
+    if (jokers > 1) throw java.lang.RuntimeException("Not possible")
+
     if ((max + jokers) == 2) {
-        if (jokers == 0) {
-            if (counts.values.count { it == 2 } == 2) return 2
-        } else {
-            if (counts.values.count { it == 2 } == 1) throw java.lang.RuntimeException("ALSO DID NOT EXPECT: " + cards)
+        if (jokers == 0) { // Can't get two pairs with 1 joker, otherwise would have had three of a kind
+            if (counts.values.count { it == 2 } == 2) return 2 // Two pairs
         }
     }
     return (max + jokers) - 1
