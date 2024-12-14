@@ -242,3 +242,15 @@ fun gcd(a: Int, b: Int): Int {
 
     return aa
 }
+
+// (a, b) and (b, a) are considered the same and only 1 is returned
+fun <T> combinations(collection: Collection<T>): Sequence<Pair<T, T>> {
+    val list = collection.toList();
+    return sequence {
+        for (i in list.indices) {
+            for (j in i+1 until list.size) {
+                yield (list[i] to list[j])
+            }
+        }
+    }
+}
