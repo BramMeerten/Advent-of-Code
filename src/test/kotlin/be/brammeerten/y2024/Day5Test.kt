@@ -73,8 +73,4 @@ class Day5Test {
             return p1I < p2I
         }
     }
-
-    /*private fun fix(current: List<String>, rules: List<String>): List<String> {
-        val (p1, p2) = rule.split("|")
-    }*/
 }
